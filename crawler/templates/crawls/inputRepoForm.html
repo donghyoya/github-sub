@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>github repository를 입력하십시오</h1>
+<h3>
+    예시 https://github.com/{user}/{repository}/
+    <br>
+    현 버전에서는 앞에 https를 빼면 작동안합니다.
+</h3>
+<form action="/repo/query" method="post">
+    {% csrf_token %}
+    <input type="text" id="repo-url" name="repo-url">
+    <button type="submit">
+        제출하기
+    </button>
+</form>
+</body>
+</html>
