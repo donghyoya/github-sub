@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-from crawler.utils.crawler.GitSrcFiles import GitSrcFiles
+from .GitSrcFiles import GitSrcFiles
 
 class GitCrawler:
     def __init__(self):
