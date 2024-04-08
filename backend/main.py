@@ -28,7 +28,7 @@ def crawlBackgroundService(form: RepoForm, repoId):
     if repoRepository.existRepoId(repoId):
         return
     crawler = GitCrawler()
-    crawler.startCrawl(form.url)
+    crawler.startCrawl(form.url, form.options)
     sources = crawler.getSrcFiles()
     repoRepository.saveRepoById(repoId, sources)
 

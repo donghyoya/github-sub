@@ -1,3 +1,4 @@
+import re
 from queue import Queue
 
 from selenium import webdriver
@@ -8,8 +9,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
 from .GitSrcFiles import GitSrcFiles
-
 class GitCrawler:
+    SOURCE_EXTENSION_PATTERN = r"\.([a-zA-Z0-9]+)$"
     def __init__(self):
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -22,12 +23,14 @@ class GitCrawler:
         self.wait = WebDriverWait(self.driver, 10)
 
 
-    def startCrawl(self, rootUrl):
+    def startCrawl(self, rootUrl, extensionOption):
         self.dirSet = set()
         self.srcFileUrls = []
         self.queue = Queue()
 
         self.queue.put(rootUrl)
+
+        self.extensionOption = set(extensionOption)
 
         while not self.queue.empty():
             url = self.queue.get()
@@ -52,20 +55,22 @@ class GitCrawler:
                 continue
             self.dirSet.add(href)
 
+            srcExtension = re.findall(GitCrawler.SOURCE_EXTENSION_PATTERN, href)
+            if len(srcExtension) == 1:
+                if srcExtension[0] in self.extensionOption:
+                    self.srcFileUrls.append((href, srcExtension[0]))
             if "/tree" in href:
                 self.queue.put(href)
-            if ".java" in href:
-                self.srcFileUrls.append(href)
 
     def getSrcFiles(self):
         self.srcFiles = []
-        for url in self.srcFileUrls:
-            srcFile = self.getSrcFile(url)
+        for url,extension in self.srcFileUrls:
+            srcFile = self.getSrcFile(url, extension)
             self.srcFiles.append(srcFile)
 
         return self.srcFiles
 
-    def getSrcFile(self, url):
+    def getSrcFile(self, url, extension):
         self.driver.get(url)
         textarea = self.wait.until(
             expected_conditions.presence_of_element_located((By.ID, 'read-only-cursor-text-area'))
@@ -73,13 +78,17 @@ class GitCrawler:
         src = textarea.text
         srcName = url.split("/")[-1]
         return GitSrcFiles(
-            url, srcName, src
+            url, srcName, src, extension
         )
 
 
 if __name__ == "__main__":
     crawler = GitCrawler()
-    crawler.startCrawl("/* input your test code in hear */")
+    url = "/* input your test url in here */"
+    extensionOption = [
+        "java"
+    ]
+    crawler.startCrawl(url, extensionOption)
     srcFiles = crawler.getSrcFiles()
 
     for i in srcFiles:
@@ -87,4 +96,5 @@ if __name__ == "__main__":
         print(i.url)
         print(i.title)
         print(i.src)
+        print(i.language)
         print("================================")
