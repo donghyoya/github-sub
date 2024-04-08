@@ -15,7 +15,7 @@ class RepoMatcher:
         return result[0]
 
 if __name__ == '__main__':
-    url = 'https://github.com/js990311/spring-shortener/'
+    url = '/* input your test url in here */'
     repo = RepoMatcher()
     if repo.regex_match(url):
         print(repo.get_repo_name(url))

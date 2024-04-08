@@ -1,8 +1,22 @@
 <script>
+import RepoResult from './RepoResult.vue';
+
+import {ref} from 'vue';
+
 export default{
+    components:{
+        RepoResult
+    },
     data(){
         return{
             repoUrl: '',
+            checkedOptions: [],
+            options : [
+                {label: 'java',value : 'java'},
+                {label: 'python',value : 'py'},
+                {label: 'javascript',value : 'js'}
+            ],
+
             username: '',
             reponame: '',
             pollingFlag: true,
@@ -13,8 +27,12 @@ export default{
     methods : {
         submit(){
 
-            let jsonData = JSON.stringify({url : this.repoUrl});
-            console.log(`${jsonData}`);
+            let jsonData = JSON.stringify({
+                url : this.repoUrl,
+                options: this.checkedOptions
+            });
+            
+            console.log(jsonData);
 
             fetch('http://localhost:8000/repo/query',
             {
@@ -39,7 +57,6 @@ export default{
                 fetch(endpoint)
                 .then(resp=>resp.json())
                 .then(data=>{
-                    console.log(data)
                     if(data.code === 1){
                         // code는 api따라 달라질 수있음
                         // code 1은 완성이라는 뜻 
@@ -67,10 +84,23 @@ export default{
         <h3>Github-Sub</h3>
         <p>현 버전에서는 'https://'이 포함된 완전한 url만을 취급합니다.</p>
     </div>
+    <!-- begin:form -->
     <form @submit.prevent="submit">
         <input name="repoUrl" id="repoUrl" type="text" v-model="repoUrl" >
+        <!-- begin:check options -->
+        <p>분석하고 싶은 코드의 언어를 선택하세요.</p>
+        <ul>
+            <li v-for="option in options">
+                <input  type="checkbox" v-model="checkedOptions" :value="option.value" :id="option.label">
+                <label :for="option.label">
+                    {{ option.label }}
+                </label>
+            </li>    
+        </ul>
+        <!-- end:check options -->
         <button type="submit">제출하기</button>
     </form>
+    <!-- end:form -->
     <div v-show="submitResult !== ''">
         <h4 v-show="pollingFlag">
             Repository {{ submitResult }}에 대한 정보 추출을 진행중입니다. 조금만 기다려주십시오. 
@@ -80,17 +110,19 @@ export default{
                 Repository {{ submitResult }}에 대한 정보 추출이 완료되었습니다. 
             </h4>
             <ul>
-                <li v-for="data in repoDatas">
-                    <h4>
-                        <a :href="data.url">{{ data.directory }}</a>
-                        <p>filename : {{ data.title }}</p>
-                    </h4>
-                    <p>
-                        {{ data.src }}
-                    </p>
-                </li>
+                <RepoResult 
+                    v-for="data in repoDatas"
+                    :src-object="data"
+                />
             </ul>
         </div>
     </div>
 </template>
 
+<style scoped>
+ul{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+</style>
