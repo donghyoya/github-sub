@@ -1,22 +1,24 @@
-class DictionaryCrawlRepository:
+from repository.ABCSourceRepository import ABCSourceRepository
+
+class DictionaryCrawlRepository(ABCSourceRepository):
     def __init__(self):
         self.result = {}
 
-    def existRepoById(self, id: tuple):
-        if id in self.result:
+    def existsRepoById(self, repoId: tuple):
+        if repoId in self.result:
             return True
         else:
             return False
 
-    def findRepoById(self, id):
-        if id in self.result:
-            return self.result[id]
+    def findRepoById(self, repoId: tuple):
+        if repoId in self.result:
+            return self.result[repoId]
         else:
             return None
 
-    def saveRepoById(self, id, repo):
-        if id in self.result:
+    def saveRepoById(self, repoId: tuple, sources):
+        if repoId in self.result:
             return False
         else:
-            self.result[id] = repo
+            self.result[repoId] = sources
             return True
