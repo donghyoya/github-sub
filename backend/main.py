@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from starlette.background import BackgroundTasks
 
-from repository.InMemoryCrawlRepository import InMemoryCrawlRepository
+from repository.DelegateSourceRepository import DelegateSourceRepository
+from repository.DictionaryCrawlRepository import DictionaryCrawlRepository
+from repository.DictionaryStatusRepository import DictionaryStatusRepository
 from utils.RepoMatcher import RepoMatcher
 from form.RepoForm import *
 from utils.crawler.GitCrawler import GitCrawler
@@ -21,16 +23,29 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-repoRepository = InMemoryCrawlRepository()
+repoRepository = DictionaryCrawlRepository()
+statusRepository = DictionaryStatusRepository()
+repository = DelegateSourceRepository(statusRepository, repoRepository)
+
 repoMatcher = RepoMatcher()
 
-def crawlBackgroundService(form: RepoForm, repoId):
-    if repoRepository.existRepoId(repoId):
+def crawlBackgroundService(form: RepoForm, repoId:tuple):
+    work_status = repository.existStatusById(repoId)
+
+    if work_status != "NONE" and work_status != "FAIL":
+        # 작업이 이미 진행중이고, 실패하지 않았다면 새 작업을 시작하지 않음
         return
-    crawler = GitCrawler()
-    crawler.startCrawl(form.url, form.options)
-    sources = crawler.getSrcFiles()
-    repoRepository.saveRepoById(repoId, sources)
+    else:
+        repository.saveStatusById(repoId, "WORKING")
+
+    try:
+        crawler = GitCrawler()
+        crawler.startCrawl(form.url, form.options)
+        sources = crawler.getSrcFiles()
+        repository.saveRepoById(repoId, sources)
+    except Exception as e:
+        # 에러 발생시 fail
+        repository.saveStatusById(repoId, "FAIL")
 
 @app.get("/")
 async def root():
@@ -66,13 +81,29 @@ async def query_repo(
 
 @app.get("/repo/{username}/{reponame}")
 async def get_repo(username: str, reponame: str):
-    if repoRepository.existRepoId((username, reponame)):
+    id = (username, reponame)
+    status = repository.existStatusById((username, reponame))
+    if status == "DONE":
+        # 작업 완료
+        data = repository.findRepoById(id)
         return {
-            "code" : 1,
-            "data" : repoRepository.findRepoById((username, reponame))
+            "code" : "DONE",
+            "message": "There is Git Repository",
+            "data" : data
+        }
+    elif status == "FAIL":
+        # 작업 실패
+        return {
+            "code" : "FAIL",
+            "message" : "Crawling Failed. Checked Your Request and Please try again"
+        }
+    elif status == "WORKING":
+        return {
+            "code" : "WORKING",
+            "message" : "Crawling data now. wait some minute"
         }
     else:
         return {
-            "code" : 2,
-            "message" : "not yet"
+            "code" : "NONE",
+            "message" : "There is no such git repository"
         }
