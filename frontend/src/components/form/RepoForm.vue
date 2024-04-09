@@ -57,9 +57,9 @@ export default{
                 fetch(endpoint)
                 .then(resp=>resp.json())
                 .then(data=>{
-                    if(data.code === 1){
+                    if(data.code === "DONE"){
                         // code는 api따라 달라질 수있음
-                        // code 1은 완성이라는 뜻 
+                        // DONE = 크롤링 완료
                         this.pollingFlag = false;
                         this.repoDatas = data.data;
                         clearInterval(this.pollingInterval);

@@ -1,8 +1,8 @@
-class InMemoryCrawlRepository:
+class DictionaryCrawlRepository:
     def __init__(self):
         self.result = {}
 
-    def existRepoId(self, id):
+    def existRepoById(self, id: tuple):
         if id in self.result:
             return True
         else:
