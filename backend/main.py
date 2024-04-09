@@ -23,14 +23,15 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-repoRepository = DictionaryCrawlRepository()
+# repository 작성 후
+sourceRepository = DictionaryCrawlRepository() # 이 객체만 교체하면 가능함
 statusRepository = DictionaryStatusRepository()
-repository = DelegateSourceRepository(statusRepository, repoRepository)
+repository = DelegateSourceRepository(statusRepository, sourceRepository)
 
 repoMatcher = RepoMatcher()
 
 def crawlBackgroundService(form: RepoForm, repoId:tuple):
-    work_status = repository.existStatusById(repoId)
+    work_status = repository.existsRepoById(repoId)
 
     if work_status != "NONE" and work_status != "FAIL":
         # 작업이 이미 진행중이고, 실패하지 않았다면 새 작업을 시작하지 않음
@@ -82,7 +83,7 @@ async def query_repo(
 @app.get("/repo/{username}/{reponame}")
 async def get_repo(username: str, reponame: str):
     id = (username, reponame)
-    status = repository.existStatusById((username, reponame))
+    status = repository.existsRepoById((username, reponame))
     if status == "DONE":
         # 작업 완료
         data = repository.findRepoById(id)
