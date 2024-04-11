@@ -1,7 +1,6 @@
 from repository.ABCSourceRepository import ABCSourceRepository
 
 from sqlalchemy import create_engine, literal
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from repository.Entity import SourceCode, GithubUser, Repository
@@ -20,12 +19,10 @@ class MariaRepository(ABCSourceRepository):
 
     def init(self, db_config:dict) -> None:
         self.engine = create_engine(
-            'mariadb+mariadbconnector://{}:{}@{}:{}/{}'.format(
-                db_config['user'],
+            'mariadb+mariadbconnector://{}:{}@{}'.format(
+                db_config['username'],
                 db_config['password'],
-                db_config['host'],
-                db_config['port'],
-                db_config['database']
+                db_config['url']
             )
         )
 
@@ -100,11 +97,9 @@ class MariaRepository(ABCSourceRepository):
 
 if __name__== "__main__":
     db_config = {
-        'user' : 'admin',
+        'username' : 'admin',
         'password' : 'admin',
-        'host' : 'localhost',
-        'port' : '3306',
-        'database' : 'github_sub'
+        'url': 'localhost:3306/github_sub'
     }
 
     repo1 = MariaRepository(db_config)

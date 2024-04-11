@@ -1,7 +1,6 @@
 <script>
 import RepoResult from './RepoResult.vue';
 import { queryApi } from '../api/RepositoryApi';
-import {ref} from 'vue';
 
 export default{
     components:{
@@ -23,7 +22,6 @@ export default{
     },
     methods : {
         submit(){
-
             let jsonData = JSON.stringify({
                 url : this.repoUrl,
                 options: this.checkedOptions
@@ -47,7 +45,7 @@ export default{
 
 <template>
     <div>
-        <h3>Github-Sub</h3>
+        <h3>Github-Sub </h3>
         <p>현 버전에서는 'https://'이 포함된 완전한 url만을 취급합니다.</p>
     </div>
     <!-- begin:form -->
