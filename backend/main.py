@@ -5,6 +5,7 @@ from repository.DelegateSourceRepository import DelegateSourceRepository
 from repository.DictionaryCrawlRepository import DictionaryCrawlRepository
 from repository.DictionaryStatusRepository import DictionaryStatusRepository
 from repository.MariaRepository import MariaRepository
+from utils.ConfigYmlParser import parseEnv
 from utils.RepoMatcher import RepoMatcher
 from form.RepoForm import *
 from utils.crawler.GitCrawler import GitCrawler
@@ -25,14 +26,8 @@ app.add_middleware(
 )
 
 # repository 작성 후
-datasource = {
-    'user': 'admin',
-    'password': 'admin',
-    'host': 'localhost',
-    'port': '3306',
-    'database': 'github_sub'
-}
-sourceRepository = MariaRepository(datasource) # 이 객체만 교체하면 가능함
+config = parseEnv('env.yml')
+sourceRepository = MariaRepository(config['datasource']) # 이 객체만 교체하면 가능함
 statusRepository = DictionaryStatusRepository()
 repository = DelegateSourceRepository(statusRepository, sourceRepository)
 

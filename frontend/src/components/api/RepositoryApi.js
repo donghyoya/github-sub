@@ -1,8 +1,8 @@
-const host = 'http://localhost:8000'
+const host = import.meta.env.VITE_APP_API_HOST// 'http://localhost:8000'
 
 export const queryApi = (jsonData, successHandler) => {
     const endpoint = `${host}/repo/query`;
-
+    
     fetch(endpoint,
     {
         method : 'POST', 
