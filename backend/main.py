@@ -4,6 +4,7 @@ from starlette.background import BackgroundTasks
 from repository.DelegateSourceRepository import DelegateSourceRepository
 from repository.DictionaryCrawlRepository import DictionaryCrawlRepository
 from repository.DictionaryStatusRepository import DictionaryStatusRepository
+from repository.MariaRepository import MariaRepository
 from utils.RepoMatcher import RepoMatcher
 from form.RepoForm import *
 from utils.crawler.GitCrawler import GitCrawler
@@ -24,7 +25,14 @@ app.add_middleware(
 )
 
 # repository 작성 후
-sourceRepository = DictionaryCrawlRepository() # 이 객체만 교체하면 가능함
+datasource = {
+    'user': 'admin',
+    'password': 'admin',
+    'host': 'localhost',
+    'port': '3306',
+    'database': 'github_sub'
+}
+sourceRepository = MariaRepository(datasource) # 이 객체만 교체하면 가능함
 statusRepository = DictionaryStatusRepository()
 repository = DelegateSourceRepository(statusRepository, sourceRepository)
 
