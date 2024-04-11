@@ -1,6 +1,6 @@
 <script>
 import RepoResult from './RepoResult.vue';
-
+import { queryApi } from '../api/RepositoryApi';
 import {ref} from 'vue';
 
 export default{
@@ -31,23 +31,16 @@ export default{
             
             console.log(jsonData);
 
-            fetch('http://localhost:8000/repo/query',
-            {
-                method : 'POST', 
-                headers : {
-                    'Content-Type' : 'application/json',
-                },
-                body: jsonData
-            }).then(resp=>resp.json())
-            .then(data =>{
-                this.username = data.username;
-                this.reponame = data.reponame;
-                this.resultFlag = false;
-                setTimeout(()=>{
-                    this.resultFlag = true;
-                },5)
-            });
+            queryApi(jsonData, this.successHandler);
         },
+        successHandler(data){
+            this.username = data.username;
+            this.reponame = data.reponame;
+            this.resultFlag = false;
+            setTimeout(()=>{
+                this.resultFlag = true;
+            },5)
+        }
     },
 }
 </script>

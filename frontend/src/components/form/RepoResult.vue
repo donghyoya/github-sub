@@ -1,5 +1,6 @@
 <script>
 import RepoSources from './RepoSources.vue';
+import { pollingApi } from '../api/RepositoryApi';
 import { RouterLink } from 'vue-router';
 export default{ 
     components:{
@@ -19,28 +20,41 @@ export default{
     },
     methods : {
         polling(){
-            let endpoint = `http://localhost:8000/repo/${this.username}/${this.reponame}`;
+            pollingApi(
+                this.username,
+                this.reponame,
+                this.pollingSuccess,
+                this.pollingFail
+            )
 
             // 크롤링이 끝날때까지 기다려줌
-            this.pollingInterval = setInterval(()=>{
-                fetch(endpoint)
-                .then(resp=>resp.json())
-                .then(data=>{
-                    console.log(data);
-                    if(data.code === "DONE"){
-                        // code는 api따라 달라질 수있음
-                        // DONE = 크롤링 완료
-                        this.pollingFlag = false;
-                        this.repoDatas = data.data;
-                        clearInterval(this.pollingInterval);
-                    }else if(data.code === "FAIL" || data.code === "NONE"){
-                        // FAIL = 크롤링 실패
-                        this.pollingFlag = false;
-                        this.failFlag = true;
-                        clearInterval(this.pollingInterval);
-                    }
-                })
-            }, 10*1000);
+            if(this.pollingFlag){
+                this.pollingInterval = setInterval(()=>{
+                    pollingApi(
+                        this.username,
+                        this.reponame,
+                        this.pollingSuccess,
+                        this.pollingFail
+                    )
+                }, 10*1000);
+            }
+        },
+        pollingSuccess(data){
+            console.log("success");
+            this.pollingFlag = false;
+            this.repoDatas = data.data;
+            this.clearPolling();
+        },
+        pollingFail(){
+            console.log("fail");
+            this.pollingFlag = false;
+            this.failFlag = true;
+            this.clearPolling();
+        },
+        clearPolling(){
+            if(this.pollingInterval !== null)
+                clearInterval(this.pollingInterval);
+
         }
     },
     created(){
