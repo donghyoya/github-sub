@@ -20,7 +20,6 @@ class GitSrcFiles:
         else:
             self.language = extension
 
-
 if __name__ == '__main__':
     url = '/* input your test url in here */'
     src = GitSrcFiles(url, 'title', 'src')
