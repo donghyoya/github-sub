@@ -17,7 +17,11 @@ class GitCrawler:
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option("useAutomationExtension", False)
         options.add_argument('--disable-blink-features=AutomationControlled')
-
+        options.add_argument("--headless")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--headless")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
 
         self.driver = webdriver.Chrome(service=Service(executable_path=ChromeDriverManager().install()))
         self.wait = WebDriverWait(self.driver, 10)

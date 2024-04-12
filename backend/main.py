@@ -10,8 +10,13 @@ from utils.RepoMatcher import RepoMatcher
 from form.RepoForm import *
 from utils.crawler.GitCrawler import GitCrawler
 from fastapi.middleware.cors import CORSMiddleware
+import logging
 
 app = FastAPI()
+
+# config log
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 origins = [
     "http://localhost:5173"
@@ -36,19 +41,23 @@ repoMatcher = RepoMatcher()
 def crawlBackgroundService(form: RepoForm, repoId:tuple):
     work_status = repository.existsRepoById(repoId)
 
+    logger.info(f"crawling target = {repoId[0]}/{repoId[1]}")
     if work_status != "NONE" and work_status != "FAIL":
         # 작업이 이미 진행중이고, 실패하지 않았다면 새 작업을 시작하지 않음
+        logger.info("{repoId[0]}/{repoId[1]} is already crawling now")
         return
     else:
         repository.saveStatusById(repoId, "WORKING")
 
     try:
+        logger.info("start crawling {repoId[0]}/{repoId[1]} ")
         crawler = GitCrawler()
         crawler.startCrawl(form.url, form.options)
         sources = crawler.getSrcFiles()
         repository.saveRepoById(repoId, sources)
     except Exception as e:
         # 에러 발생시 fail
+        logger.info(f"crawling fail {e}")
         repository.saveStatusById(repoId, "FAIL")
 
 @app.get("/")

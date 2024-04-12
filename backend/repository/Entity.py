@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Text, PrimaryKeyConstraint, literal
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Text,PrimaryKeyConstraint, literal
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.orm import mapped_column
 
