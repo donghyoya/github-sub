@@ -1,0 +1,178 @@
+[
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "ISMS 챗봇입니다."
+      },
+      {
+        "role": "user",
+        "content": "오상테크놀로지는 어디에있어?"
+      },
+      {
+        "role": "assistant",
+        "content": "서울 구로구에 있습니다."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "ISMS 챗봇입니다."
+      },
+      {
+        "role": "user",
+        "content": "오상테크놀로지 대표는 누구야?"
+      },
+      {
+        "role": "assistant",
+        "content": "박수경 입니다"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "ISMS 챗봇입니다."
+      },
+      {
+        "role": "user",
+        "content": "오상테크놀로지 개발팀은 누가있어?"
+      },
+      {
+        "role": "assistant",
+        "content": "박치환, 김세현, 김석중, 박세담 등이 있습니다."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "ISMS 챗봇입니다."
+      },
+      {
+        "role": "user",
+        "content": "오상테크놀로지 퍼블리셔는 누구야?"
+      },
+      {
+        "role": "assistant",
+        "content": "권다운, 김현우, 김경민 등이 있습니다."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "ISMS 챗봇입니다."
+      },
+      {
+        "role": "user",
+        "content": "오상테크놀로지 디자이너는 누구야?"
+      },
+      {
+        "role": "assistant",
+        "content": "이재진, 이창희, 이혜린 등이 있습니다."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "ISMS 챗봇입니다."
+      },
+      {
+        "role": "user",
+        "content": "오상테크놀로지 진행중인 프로젝트는 뭐가 있어?"
+      },
+      {
+        "role": "assistant",
+        "content": "ISMS, O2O, 의료정보시스템 등을 개발하고있습니다."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "ISMS 챗봇입니다."
+      },
+      {
+        "role": "user",
+        "content": "오상테크놀로지 경영기획팀은 누구야?"
+      },
+      {
+        "role": "assistant",
+        "content": "최종현, 손지현, 윤정명 등이 있습니다."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "ISMS 챗봇입니다."
+      },
+      {
+        "role": "user",
+        "content": "오상테크놀로지 전략기획팀은 누구야?"
+      },
+      {
+        "role": "assistant",
+        "content": "남보라, 김주환, 박선영 등이 있습니다."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "ISMS 챗봇입니다."
+      },
+      {
+        "role": "user",
+        "content": "오상테크놀로지 팀은 어떻게 나뉘어?"
+      },
+      {
+        "role": "assistant",
+        "content": "개발팀, uiux, 경영기획, 전략기획 등으로 나뉩니다."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "ISMS 챗봇입니다."
+      },
+      {
+        "role": "user",
+        "content": "오상테크놀로지 출근시간은 몇시야?"
+      },
+      {
+        "role": "assistant",
+        "content": "8시부터 10시까지 유연근무제 실시하고있습니다."
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "ISMS 챗봇입니다."
+      },
+      {
+        "role": "user",
+        "content": "오상테크놀로지 퇴근시간은 몇시야?"
+      },
+      {
+        "role": "assistant",
+        "content": "17시부터 19시까지 유연근무제 실시하고있습니다."
+      }
+    ]
+  }
+]
