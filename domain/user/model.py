@@ -1,7 +1,6 @@
 from sqlalchemy import  Column, String, \
 PrimaryKeyConstraint, BigInteger, Text, \
- Integer
-from sqlalchemy.orm import relationshipnal
+Integer
 
 from default.config.dbconfig import Base
 
