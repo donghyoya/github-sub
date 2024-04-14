@@ -1,7 +1,7 @@
 from sqlalchemy import  Column, String, \
 PrimaryKeyConstraint, BigInteger, Text, \
 Integer, ForeignKey
-from sqlalchemy.orm import relationshipnal
+from sqlalchemy.orm import relationship
 
 from default.config.dbconfig import Base
 
