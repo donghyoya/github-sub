@@ -12,4 +12,5 @@ class SourceCode(Base):
     sourceCode = Column(Text)
     path = Column(String(100))
     rid = Column(BigInteger, ForeignKey('Repository.rid'))
+    url = Column(String(255))
     repository = relationship("Repository", back_populates="source_codes")
