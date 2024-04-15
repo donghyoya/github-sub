@@ -1,12 +1,13 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 
-class SourceCode(BaseModel):
-    sid: int | None
-    sourceName: str | None = Field(None, examples="testRepository.java")
-    path: str | None = Field(None, examples="/src/main/java/com/company/project/domain/user/repository/")
-    rid: int | None
+
+class SourceCodeSchema(BaseModel):
+    sid: Optional[int] = Field(None, example=1)
+    sourceName: Optional[str] = Field(None, example="HelloWorld")
+    sourceCode: Optional[str] = Field(None, example="print('Hello World')")
+    path: Optional[str] = Field(None, example="/home/user/helloworld.py")
+    rid: int
 
     class Config:
         orm_mode = True
-
