@@ -14,3 +14,4 @@ class Repository(Base):
     repoName = Column(String(25))
     guid = Column(BigInteger, ForeignKey('GithubUser.uid'))
     github_user = relationship("GithubUser", back_populates="repositories")
+

@@ -9,6 +9,6 @@ class GithubUser(Base):
     uid = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
     username = Column(String(255))
     site = Column(String(255))
-    ConnectCnt = Column(Integer)
+    connectCnt = Column(Integer)
     follower = Column(Integer)
     following = Column(Integer)
