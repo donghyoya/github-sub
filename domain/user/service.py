@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from .model import GithubUser, CreateUserSchema
+from .model import GithubUser
+from .schema import GithubUserSchema, CreateUserSchema
 
 def get_user(db: Session, user_id: int):
     return db.query(GithubUser).filter(GithubUser.uid == user_id).first()
