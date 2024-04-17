@@ -9,4 +9,4 @@ class AiResultSchema(BaseModel):
     rid: int
 
     class Config:
-        orm_mode = True
+        from_attri = True
