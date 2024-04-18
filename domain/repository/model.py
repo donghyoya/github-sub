@@ -5,7 +5,6 @@ from sqlalchemy.orm import relationship
 
 from default.config.dbconfig import Base
 
-
 class Repository(Base):
     __tablename__ = 'Repository'
     rid = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
