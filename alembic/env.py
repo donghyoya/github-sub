@@ -28,6 +28,7 @@ from domain.repository.model import Repository
 from domain.sourcecode.model import SourceCode
 target_metadata = [GithubUser.metadata, AiResult.metadata, Repository.metadata, SourceCode.metadata]
 
+# target_metadata = GithubUser.metadata
 load_dotenv(".env")
 
 
