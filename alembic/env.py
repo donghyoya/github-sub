@@ -33,6 +33,7 @@ load_dotenv(".env")
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+config.set_main_option('sqlalchemy.url', os.getenv('DATABASE_URL'))
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -46,10 +47,9 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = os.getenv("DATABASE_URL")
     
     context.configure(
-        url=url,
+        url=os.getenv("DATABASE_URL"),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -80,6 +80,9 @@ def run_migrations_online() -> None:
         with context.begin_transaction():
             context.run_migrations()
 
+print("Before loading .env: ", os.getenv("DATABASE_URL"))
+load_dotenv(".env")
+print("After loading .env: ", os.getenv("DATABASE_URL"))
 
 if context.is_offline_mode():
     run_migrations_offline()
