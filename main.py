@@ -9,10 +9,18 @@ from domain.sourcecode.router import router as sourcecode_router
 
 #미들웨어 적용
 from default.middleware.coresmiddleware import setup_cors
+from default.middleware.redismiddleware import redis_middleware
 
 app = FastAPI()
 
-setup_cors(app)
+#표준 fastpi 미들웨어 추가
+app.add_middleware(setup_cors)
+app.middleware("http")(redis_middleware)
+
+'''
+직접 함수를 호출하는 방식 (이 경우, 이 함수 내에서 미들웨어 로직이 app 인스턴스에 적용되어야 함)
+redis_middleware(app)
+'''
 
 app.include_router(user_router,prefix="/user")
 app.include_router(chatgpt_router,prefix="/chatgpt")
