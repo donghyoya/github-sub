@@ -6,6 +6,7 @@ from domain.chatgpt.router import router as chatgpt_router
 from domain.airesult.router import router as airesult_router
 from domain.repository.router import router as repo_router
 from domain.sourcecode.router import router as sourcecode_router
+from domain.crawler.router import router as crawler_router
 
 #미들웨어 적용
 from default.middleware.coresmiddleware import setup_cors
@@ -27,3 +28,4 @@ app.include_router(chatgpt_router,prefix="/chatgpt")
 app.include_router(airesult_router,prefix="/airesult")
 app.include_router(repo_router, prefix="/repo")
 app.include_router(sourcecode_router, prefix="/source")
+app.include_router(crawler_router, prefix="/crawler")

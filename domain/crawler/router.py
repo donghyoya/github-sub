@@ -7,7 +7,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-router = APIRouter(tags=["crawler"])
+router = APIRouter(
+    tags=["crawler"]
+    )
 
 class GitCrawler:
     SOURCE_EXTENSION_PATTERN = r"\.([a-zA-Z0-9]+)$"
