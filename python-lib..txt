@@ -19,3 +19,4 @@ alembic==1.13.1
 redis==5.0.3
 selenium==4.19.0
 webdriver_manager==4.0.1
+python-multipart==0.0.9
