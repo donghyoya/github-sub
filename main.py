@@ -15,12 +15,13 @@ from default.middleware.redismiddleware import redis_middleware
 app = FastAPI()
 
 #표준 fastpi 미들웨어 추가
-app.add_middleware(setup_cors)
+setup_cors(app)
 app.middleware("http")(redis_middleware)
 
 '''
-직접 함수를 호출하는 방식 (이 경우, 이 함수 내에서 미들웨어 로직이 app 인스턴스에 적용되어야 함)
+미들웨어 차이점 검색해보기
 redis_middleware(app)
+app.add_middleware(redis_middleware)
 '''
 
 app.include_router(user_router,prefix="/user")

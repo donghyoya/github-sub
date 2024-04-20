@@ -1,4 +1,5 @@
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Query
+from typing import List
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -6,6 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+import re
 
 router = APIRouter(
     tags=["crawler"]
@@ -16,9 +18,9 @@ class GitCrawler:
 
     def __init__(self):
         options = webdriver.ChromeOptions()
-        options.add_argument("--headless")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
+        # options.add_argument("--headless")
+        # options.add_argument("--no-sandbox")
+        # options.add_argument("--disable-dev-shm-usage")
 
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         self.wait = WebDriverWait(self.driver, 10)
@@ -89,8 +91,8 @@ def crawl_git_repository(background_tasks: BackgroundTasks, url: str, extensions
     crawler.close()
     return src_files
 
-@router.get("/crawl/")
-async def perform_crawl(background_tasks: BackgroundTasks, url: str, extensions: list = ["py"]):
+@router.get("/crawl")
+async def perform_crawl(background_tasks: BackgroundTasks, url: str, extensions: List[str] = Query(...)):
     # 비동기 작업으로 크롤링 실행
     background_tasks.add_task(crawl_git_repository, background_tasks, url, extensions)
     return {"message": "Crawling started", "url": url, "extensions": extensions}
