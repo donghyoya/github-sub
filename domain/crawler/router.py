@@ -45,19 +45,47 @@ class GitCrawler:
                 self.dir_set.add(href)
                 src_extension = re.findall(self.SOURCE_EXTENSION_PATTERN, href)
                 if src_extension and src_extension[0] in self.extension_option:
-                    self.src_file_urls.append(href)
+                    self.src_file_urls.append((href, src_extension[0]))
                 elif "/tree" in href:
                     self.queue.append(href)
 
     def close(self):
         self.driver.quit()
 
+    def get_src_files(self):
+        src_files = []
+        for url, extension in self.src_file_urls:
+            self.driver.get(url)
+            src = self.driver.page_source
+            title = url.split("/")[-1]
+            src_files.append(GitSrcFiles(url, title, src, extension))
+        return src_files
+
+class GitSrcFiles:
+    GIT_TREE_PATTERNS = r'/blob/\w+/([a-zA-Z0-9\/-_]+)/'
+    EXTENSTION_TO_LANG = {
+        'java': 'java',
+        'js': 'javascript',
+        'py': 'python',
+    }
+
+    def __init__(self, url, title, src, extension):
+        self.url = url
+        dir = re.findall(GitSrcFiles.GIT_TREE_PATTERNS, url)
+        self.directory = dir[0] if len(dir) == 1 else ''
+        self.title = title
+        self.src = src
+        if extension in GitSrcFiles.EXTENSTION_TO_LANG:
+            self.language = GitSrcFiles.EXTENSTION_TO_LANG[extension]
+        else:
+            self.language = extension
+
 def crawl_git_repository(background_tasks: BackgroundTasks, url: str, extensions: list):
     crawler = GitCrawler()
     crawler.start_crawl(url, extensions)
-    result = crawler.src_file_urls
+    src_files = crawler.get_src_files()
     crawler.close()
-    return result
+    return src_files
 
 @router.get("/crawl/")
 async def perform_crawl(background_tasks: BackgroundTasks, url: str, extensions: list = ["py"]):
