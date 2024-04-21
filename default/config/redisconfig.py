@@ -1,4 +1,4 @@
-from pydantic import BaseSetting
+from pydantic_settings import BaseSetting
 import redis
 
 class RedisConfig(BaseSetting):

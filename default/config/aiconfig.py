@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 import openai
+from typing import ClassVar
 
 class AiConfig(BaseSettings):
     openai_api_key: str
@@ -8,12 +9,9 @@ class AiConfig(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = 'utf-8'
-        fields = {
-            'openai_api_key': {'env': 'OPENAI_API_KEY'},
-        }
 
     _instance = None
-    client = None
+    client: ClassVar[openai.Completion] = None  # ClassVar 타입 어노테이션 추가
 
     def __init__(self, **values):
         super().__init__(**values)
