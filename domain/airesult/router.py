@@ -4,6 +4,7 @@ from . import service, schema
 from sqlalchemy.orm import Session
 from typing import List
 from default.config import dbconfig
+from default.config.aiconfig import AiConfig
 
 router = APIRouter(
     tags=["airesult"]
@@ -15,6 +16,14 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def get_ai():
+    return AiConfig.get_instance()
+
+@router.post("/chat")
+async def perform_text_completion(prompt: str, ai_config: AiConfig = Depends(get_ai)):
+    completion = ai_config.chat(prompt=prompt)
+    return {"result": completion}
 
 @router.post("/airesults/",response_model=schema.AiResultSchema, 
              status_code = status.HTTP_200_OK)

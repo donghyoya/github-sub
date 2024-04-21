@@ -36,7 +36,7 @@ class ChatBot():
     def clear(self):
         self.messages.clear()
 
-chatbot = ChatBot(model=os.getenv("OUTPUT_MODEL"))
+chatbot = ChatBot(model="gpt-3.5-turbo")
 
 while(True):
     userinput = input("나: ")
