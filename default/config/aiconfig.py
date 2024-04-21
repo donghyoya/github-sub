@@ -19,7 +19,6 @@ class AiConfig(BaseSettings):
             },
         }
         
-
     _instance = None
     client: ClassVar[openai.OpenAI] = None
 
@@ -38,14 +37,15 @@ class AiConfig(BaseSettings):
             cls._instance = cls()
         return cls._instance
 
-    def chat(self, prompt, model="gpt-3.5-turbo", max_tokens=50):
+    def chat(self, prompt, max_tokens=50):
         # 인스턴스 메서드로 변경하고, self.messages로 접근
         self.messages.append({
             'role': 'user', 
             'content': prompt
         })
-        completion = openai.chat.completions.create(
-            model=model,
+
+        completion = self.client.chat.completions.create(
+            model=self.model,
             messages=self.messages,
             max_tokens=max_tokens
         )
