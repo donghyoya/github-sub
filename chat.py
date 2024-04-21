@@ -2,7 +2,7 @@ import openai
 import os
 
 # OpenAI API 키 설정
-openai.api_key = os.getenv("OPEN_API_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class ChatBot():
     def __init__(self, model=os.getenv("OUTPUT_MODEL")):

@@ -16,9 +16,10 @@ def get_db():
         yield db
     finally:
         db.close()
-
+        
 def get_ai():
-    return AiConfig.get_instance()
+    return AiConfig()
+
 
 @router.post("/chat")
 async def perform_text_completion(prompt: str, ai_config: AiConfig = Depends(get_ai)):
