@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>github-sub : {{repo.username}}/{{repo.reponame}}</title>
+</head>
+<body>
+<div>
+    <h1>
+        <span>{{repo.username}}/{{repo.reponame}}</span>
+    </h1>
+    <h3>github repository <span>{{repo.username}}/{{repo.reponame}}</span> 에 있는 source code에 대한 crawling 결과입니다.</h3>
+</div>
+<hr>
+<ul>
+{% for source in repo.sources %}
+<li>
+<div>
+    <h1>
+        <a href="{{source.url}}"> {{source.sourceName}}</a>
+    </h1>
+    <h3>source path : {{source.path}}</h3>
+</div>
+<pre>
+<code>
+{{source.sourceCode}}
+</code>
+</pre>
+</li>
+{% endfor %}
+</ul>
+</body>
+</html>
