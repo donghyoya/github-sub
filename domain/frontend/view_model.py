@@ -5,6 +5,7 @@ class VMRepository:
         self.ai_answer = None
         self.ai_score = None
         self.sources = None
+        self.status = None
 
     def set_username(self, username):
         self.username = username
@@ -24,6 +25,32 @@ class VMRepository:
 
     def set_sources(self, sources):
         self.sources = sources
+        return self
+
+    def set_status(self, status):
+        self.status = status
+        return self
+
+    def to_dict(self):
+        data = self.__dict__
+        sources = []
+        if self.sources is not None:
+            for source in self.sources:
+                sources.append(source.to_dict())
+            data['sources'] = sources
+        return data
+
+    def from_dict(self, data:dict):
+        self.username = data['username']
+        self.reponame = data['reponame']
+        self.ai_answer = data['ai_answer']
+        self.ai_score = data['ai_score']
+        self.status = data['status']
+        self.sources = []
+        for src_data in data['sources']:
+            self.sources.append(
+                VMSourceCode().from_dict(src_data)
+            )
         return self
 
 class VMSourceCode:
@@ -51,5 +78,16 @@ class VMSourceCode:
         return self
 
     def set_sourceCode(self, sourceCode):
-        self.sourcecode = sourceCode
+        self.sourceCode = sourceCode
+        return self
+
+    def to_dict(self):
+        return self.__dict__
+
+    def from_dict(self, data:dict):
+        self.url = data['url']
+        self.sourceName = data['sourceName']
+        self.path = data['path']
+        self.sourceCode = data['sourceCode']
+        self.language = data['language']
         return self

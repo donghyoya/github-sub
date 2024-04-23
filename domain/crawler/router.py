@@ -19,9 +19,9 @@ class GitCrawler:
 
     def __init__(self):
         options = webdriver.ChromeOptions()
-        options.add_argument("--headless")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
+        # options.add_argument("--headless")
+        # options.add_argument("--no-sandbox")
+        # options.add_argument("--disable-dev-shm-usage")
 
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         self.wait = WebDriverWait(self.driver, 10000)
@@ -35,19 +35,19 @@ class GitCrawler:
         self.extension_option = set(extension_option)
 
         while self.queue:
-            print("self queue: ", self.queue)
+            # print("self queue: ", self.queue)
             url = self.queue.pop(0)
             self.search_tree_dir(url)
 
     def search_tree_dir(self, url):
-        print('search_tree_dir')
+        # print('search_tree_dir')
         self.driver.get(url)
         atags = self.wait.until(
             EC.presence_of_element_located((By.TAG_NAME, "table"))
         ).find_elements(By.TAG_NAME, "a")
         # atags = self.wait.until(EC.presence_of_all_elements_located((By.TAG_NAME, "a")))
         self.find_next_urls(atags)
-        print('search_tree_dir2')
+        # print('search_tree_dir2')
 
     def find_next_urls(self, atags):
         for atag in atags:
@@ -72,22 +72,22 @@ class GitCrawler:
     def get_src_files(self):
         src_files = []
         for url, extension in self.src_file_urls:
-            print(url, extension)
+            # print(url, extension)
             src_file = self.get_src_file(url,extension)
             src_files.append(src_file)
         return src_files
 
     def get_src_file(self, url, extension):
-        print("get_src",url,extension)
+        # print("get_src",url,extension)
         self.driver.get(url)
         textarea = self.wait.until(
             EC.presence_of_element_located((By.ID, 'read-only-cursor-text-area'))
         )
-        print("textarea",textarea)
+        # print("textarea",textarea)
         src = textarea.text
-        print("textarea", src)
+        # print("textarea", src)
         srcName = url.split("/")[-1]
-        print(srcName)
+        # print(srcName)
         return GitSrcFiles(
             url, srcName, src, extension
         )
@@ -117,8 +117,8 @@ def crawl_git_repository(background_tasks: BackgroundTasks, url: str, extensions
         crawler.start_crawl(url, extensions)
         src_files = crawler.get_src_files()
         crawler.close()
-        for src in src_files:
-            print(src.src)
+        # for src in src_files:
+        #     print(src.src)
         return src_files
     except Exception as e:
         print(e)
