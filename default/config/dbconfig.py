@@ -18,6 +18,6 @@ engine = create_engine(
     DATABASE_URL
 )
 
-SessionLocal = sessionmaker(autocommit=True , autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autoflush=False, bind=engine)
 
 Base = declarative_base()
