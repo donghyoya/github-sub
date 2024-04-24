@@ -1,0 +1,28 @@
+<ul>
+{% for source in repo.sources %}
+<li>
+<details>
+<!-- start-source-metadata -->
+<summary class="py-2 px-4 bg-success-subtle">
+    <h2>
+        <a href="{{source.url}}">{{source.sourceName}}</a>
+    </h2>
+    <h4>
+        {{source.path}}
+    </h4>
+</summary>
+<!-- end-source-metadata -->
+
+<!-- start-source-code -->
+<div class="bg-body-tertiary">
+<pre class="mt-3 mb-0">
+<code class="py-1 px-4 language-{{source.language}} bg-body-tertiary">
+{{source.sourceCode}}
+</code>
+</pre>
+</div>
+<!-- end-source-code -->
+</details>
+</li>
+{% endfor %}
+</ul>

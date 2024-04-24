@@ -53,9 +53,6 @@ def get_repository_for_ai(
         "request":request,
         "repo" : repository
     }
-    print("12345", len(repository.sources))
-    for src in repository.sources:
-        print(src.sourceName)
     return templates.TemplateResponse("row_repository.html", context)
 
 @router.get("/{username}/{reponame}")
@@ -68,8 +65,20 @@ def get_repository_for_user(
         "request": request,
         "repo": repository
     }
-    print("12345", len(repository.sources))
-    for src in repository.sources:
-        print(src.sourceName)
     return templates.TemplateResponse("result.html", context)
 
+@router.get("/{username}/{reponame}/source")
+def get_repository_for_user(
+        username: str, reponame: str,
+        request:Request):
+
+    repository = get_repository(username, reponame)
+    context = {
+        "request": request,
+        "repo": repository
+    }
+    return templates.TemplateResponse("sourceCodeTemplate.html", context)
+
+@router.get("/example")
+def get_example(request: Request):
+    return templates.TemplateResponse("example.html", {'request':request})
