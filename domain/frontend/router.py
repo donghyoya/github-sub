@@ -16,19 +16,12 @@ def get_root(request: Request):
 @router.post("/mock/crawl")
 def post_crawl(form: RepositoryForm, background_tasks: BackgroundTasks):
     repo = url_checker(form.url)
-
     if repo is not None:
-        background_tasks.add_task(mock_crawl_start, repo[0], repo[1], form.url)
-        return {
-            'status': 'success',
-            'username' : repo[0],
-            'reponame' : repo[1]
-        }
+        repository = mock_crawl_start(background_tasks, repo[0], repo[1], form.url)
+        return repository
     else:
         return {
-            'status' : 'fail',
-            'username' : None,
-            'reponame' : None
+            'status' : 'fail'
         }
 
 @router.get("/mock/polling/{username}/{reponame}")
@@ -67,18 +60,45 @@ def get_repository_for_user(
     }
     return templates.TemplateResponse("result.html", context)
 
-@router.get("/{username}/{reponame}/source")
+@router.get("/frag/{username}/{reponame}/source")
 def get_repository_for_user(
         username: str, reponame: str,
         request:Request):
-
+    """
+    javascript에서 data binding 하기 곤란하므로 server side에서 rendering된 html 조각을 제공
+    """
     repository = get_repository(username, reponame)
     context = {
         "request": request,
         "repo": repository
     }
-    return templates.TemplateResponse("sourceCodeTemplate.html", context)
+    return templates.TemplateResponse("fragment/source_code.html", context)
 
-@router.get("/example")
-def get_example(request: Request):
-    return templates.TemplateResponse("example.html", {'request':request})
+@router.get("/frag/{username}/{reponame}/ai")
+def get_repository_for_user(
+        username: str, reponame: str,
+        request:Request):
+    """
+    javascript에서 data binding 하기 곤란하므로 server side에서 rendering된 html 조각을 제공
+    """
+    repository = get_repository(username, reponame)
+    context = {
+        "request": request,
+        "repo": repository
+    }
+    return templates.TemplateResponse("fragment/ai_result.html", context)
+
+@router.get("/frag/{username}/{reponame}/repository")
+def get_repository_for_user(
+        username: str, reponame: str,
+        request:Request):
+    """
+    javascript에서 data binding 하기 곤란하므로 server side에서 rendering된 html 조각을 제공
+    """
+    repository = get_repository(username, reponame)
+    context = {
+        "request": request,
+        "repo": repository
+    }
+    return templates.TemplateResponse("fragment/repository_header.html", context)
+

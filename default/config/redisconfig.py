@@ -1,7 +1,7 @@
-from pydantic_settings import BaseSetting
+from pydantic_settings import BaseSettings
 import redis
 
-class RedisConfig(BaseSetting):
+class RedisConfig(BaseSettings):
     redis_host: str ="localhost"
     redis_port: int = 6379
     redis_db: int = 0
