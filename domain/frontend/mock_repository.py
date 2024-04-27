@@ -2,32 +2,20 @@ import redis
 from default.config.redisconfig import RedisConfig
 import json
 
+from default.config.redisdbconfig import get_redis
 from domain.frontend.view_model import VMRepository, VMSourceCode
 
 
-class RedisClient:
-    _instance = None
-
-    @classmethod
-    def get_instance(cls):
-        if cls._instance is None:
-            cls._instance = redis.Redis(
-                host="localhost",
-                port=6379,
-                db=0,
-                decode_responses=True
-            )
-        return cls._instance
 
 def add_repository(username, reponame, repository):
     # db = RedisConfig.RedisClient.get_instance()
-    db = RedisClient.get_instance()
+    db = get_redis()
     data = json.dumps(repository.to_dict(), ensure_ascii=False).encode("utf-8")
     db.set(f"{username}:{reponame}", data)
 
 def find_repository(username, reponame):
     # db = RedisConfig.RedisClient.get_instance()
-    db = RedisClient.get_instance()
+    db = get_redis()
     data = db.get(f"{username}:{reponame}")
 
     if data is not None:

@@ -19,7 +19,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 #표준 fastpi 미들웨어 추가
 setup_cors(app)
-app.middleware("http")(redis_middleware)
+# app.middleware("http")(redis_middleware)
 
 '''
 미들웨어 차이점 검색해보기

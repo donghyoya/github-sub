@@ -68,10 +68,11 @@ const pollingCrawl = (username, reponame) => {
             }
         }).then(resp=>resp.json())
         .then(data =>{
-            if(data['status'] === "Not Found"){
+            state = checkWorkState(data['status'])
+            if(state === -1){
                 clearPolling();
             }
-            if(data['status'] === 'CRAWLING_COMPLETE'){
+            if(state === 110){
                 clearPolling();
                 successCrawl(username, reponame);
             }
@@ -105,6 +106,7 @@ const successAi = (username, reponame) => {
 
 /* utils */
 const checkWorkState = (status) => {
+    console.log(status);
     if(status === 'WORKING'){
         // crawling 작업 중
         return 100;

@@ -2,7 +2,10 @@ import re
 
 from fastapi import BackgroundTasks
 
+from default.config.crawlerconfig import get_crawling_driver
+from domain.crawler.converter import convert_to_vm
 from domain.crawler.router import GitCrawler
+from domain.crawler.service import git_crawling
 from domain.frontend.mock_repository import add_repository, find_repository
 from domain.frontend.view_model import VMRepository, VMSourceCode
 
@@ -18,11 +21,10 @@ def get_repository(username, reponame):
 def mock_polling(username:str, reponame:str):
     return find_repository(username, reponame)
 
-
 def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame: str, url: str):
     try:
         repo = find_repository(username,reponame)
-        if repo is not None:
+        if repo is not None and repo['status'] != "FAIL":
             # 이미 저장된 repository가 있으면 그거 꺼내옴
             return repo
         else:
@@ -37,34 +39,15 @@ def mock_crawl_service(username: str, reponame: str, url: str):
     repo = VMRepository().set_status("WORKING").set_username(username).set_reponame(reponame)
     try:
         add_repository(username, reponame, repo)
-
-        crawler = GitCrawler()
-        crawler.start_crawl(url, ["py", "java", "js"])
-        src_files = crawler.get_src_files()
-
-        # 결과물 저장
-        sources = []
-        for src in src_files:
-            source = VMSourceCode()
-            source.set_url(src.url)
-            source.set_sourceName(src.title)
-            source.set_path(src.directory)
-            source.set_sourceCode(src.src)
-            source.set_language(src.language)
-
-            sources.append(source)
-
+        sources = git_crawling(url, convert_to_vm)
         repo.set_sources(sources)
         repo.set_status("CRAWLING_COMPLETE")
         add_repository(username,reponame, repo)
-
-        crawler.close()
 
     except Exception as e:
         print("exception", e)
         repo.set_status("FAIL")
         add_repository(username,reponame,repo)
-        crawler.close()
 
 REPO_URL_PATTERN = r'https?://github.com/[a-zA-Z0-9]+/[a-zA-Z0-9_-]+'
 REPO_NAME_PATTERN = r'github.com/([a-zA-Z0-9-]+)/([a-zA-Z0-9-]+)'

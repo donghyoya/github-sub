@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  selenium:
+    # selenium standalone-chrome으로도 작동하는 것 확인
+    image: selenium/standalone-chrome
+    shm_size: 512mb
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
+#  selenium:
+#    image: selenium/hub
+#    ports:
+#      - "4442:4442"
+#      - "4443:4443"
+#      - "4444:4444"
+#
+#  chrome:
+#    image: selenium/node-chrome:beta
+#    shm_size: 512mb
+#    depends_on:
+#      - selenium
+#    environment:
+#      - SE_EVENT_BUS_HOST=selenium
+#      - SE_EVENT_BUS_PUBLISH_PORT=4442
+#      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  cache_db:
+    image: redis
+    ports:
+      - 6379:6379
+  server:
+    image: plz
+    ports:
+      - 8080:80
+    volumes:
+      - .env:/code/.env
+
+networks:
+  default:
+    driver: bridge
