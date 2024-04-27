@@ -20,7 +20,7 @@ class VMRepository:
         return self
 
     def set_ai_score(self, ai_score):
-        self.ai_answer = ai_score
+        self.ai_score = ai_score
         return self
 
     def set_sources(self, sources):

@@ -113,7 +113,7 @@ const pollingStatus = (username, reponame) => {
                  */
                 requestAi(username, reponame)// ai request하기
                 getSourceCode(username, reponame); // 크롤링 데이터 받아오기
-            } else if(state == 210){
+            } else if(state === 210){
                 /**
                  * ai 완료
                  * 프로그램의 로직상 크롤링 데이터는 이미 받아져있음
@@ -174,9 +174,18 @@ const getAiResult = (username, reponame) => {
 
 const requestAi = (username, reponame) => {
     const endpoint = `/ui/mock/${username}/${reponame}/ai`;
+    const formData = {
+        username : username,
+        reponame : reponame
+    };
+    const jsonData = JSON.stringify(formData);
 
-    fetch(endpoint, {
-       method: 'GET'
+    fetch('/ui/mock/ai', {
+        method: 'POST',
+        headers:{
+            'Content-Type': 'application/json'
+        },
+        body:jsonData
     }).then(resp => resp.json())
         .then(data=>{
             console.log('request ai', data);
