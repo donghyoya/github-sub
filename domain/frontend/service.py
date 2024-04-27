@@ -19,9 +19,15 @@ def get_repository(username, reponame):
     return ret
 
 def mock_polling(username:str, reponame:str):
+    """
+    상태정보 가져와서 리턴
+    """
     return find_repository(username, reponame)
 
 def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame: str, url: str):
+    """
+    백그라운드에서 크롤링을 시작시키는 서비스
+    """
     try:
         repo = find_repository(username,reponame)
         if repo is not None and repo['status'] != "FAIL":

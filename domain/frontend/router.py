@@ -13,27 +13,6 @@ templates = Jinja2Templates(directory="templates")
 def get_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@router.post("/mock/crawl")
-def post_crawl(form: RepositoryForm, background_tasks: BackgroundTasks):
-    repo = url_checker(form.url)
-    if repo is not None:
-        repository = mock_crawl_start(background_tasks, repo[0], repo[1], form.url)
-        return repository
-    else:
-        return {
-            'status' : 'fail'
-        }
-
-@router.get("/mock/polling/{username}/{reponame}")
-def get_polling(username: str, reponame: str):
-    repo = mock_polling(username, reponame)
-    if repo is not None:
-        return repo
-    else:
-        return {
-            'status' : 'Not Found'
-        }
-
 @router.get("/{username}/{reponame}/row")
 def get_repository_for_ai(
         username: str, reponame: str,
@@ -52,7 +31,6 @@ def get_repository_for_ai(
 def get_repository_for_user(
         username: str, reponame: str,
         request:Request):
-
     repository = get_repository(username, reponame)
     context = {
         "request": request,
@@ -60,6 +38,7 @@ def get_repository_for_user(
     }
     return templates.TemplateResponse("result.html", context)
 
+# start of /frag
 @router.get("/frag/{username}/{reponame}/source")
 def get_repository_for_user(
         username: str, reponame: str,
@@ -102,3 +81,32 @@ def get_repository_for_user(
     }
     return templates.TemplateResponse("fragment/repository_header.html", context)
 
+# end of /frag
+
+# start of mock
+@router.post("/mock/crawl")
+def post_crawl(form: RepositoryForm, background_tasks: BackgroundTasks):
+    repo = url_checker(form.url)
+    if repo is not None:
+        repository = mock_crawl_start(background_tasks, repo[0], repo[1], form.url)
+        return repository
+    else:
+        return {
+            'status' : 'fail'
+        }
+
+@router.get("/mock/polling/{username}/{reponame}")
+def get_polling(username: str, reponame: str):
+    repo = mock_polling(username, reponame)
+    if repo is not None:
+        return repo
+    else:
+        return {
+            'status' : 'Not Found'
+        }
+
+@router.get("/mock/{username}/{reponame}/ai")
+def get_mock_ai(username: str, reponame: str, background_tasks: BackgroundTasks):
+    return { "message" : "Hello World!"};
+
+# end of mock
