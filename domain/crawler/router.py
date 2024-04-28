@@ -45,7 +45,7 @@ class GitCrawler:
         atags = self.wait.until(
             EC.presence_of_element_located((By.TAG_NAME, "table"))
         ).find_elements(By.TAG_NAME, "a")
-        # atags = self.wait.until(EC.presence_of_all_elements_located((By.TAG_NAME, "a")))
+        atags = self.wait.until(EC.presence_of_all_elements_located((By.TAG_NAME, "a")))
         self.find_next_urls(atags)
         print('search_tree_dir2')
 
@@ -83,11 +83,11 @@ class GitCrawler:
         textarea = self.wait.until(
             EC.presence_of_element_located((By.ID, 'read-only-cursor-text-area'))
         )
-        print("textarea",textarea)
+        print("textarea1",textarea)
         src = textarea.text
-        print("textarea", src)
+        print("src area", src)
         srcName = url.split("/")[-1]
-        print(srcName)
+        print("srcName: ",srcName)
         return GitSrcFiles(
             url, srcName, src, extension
         )
@@ -118,7 +118,7 @@ def crawl_git_repository(background_tasks: BackgroundTasks, url: str, extensions
         src_files = crawler.get_src_files()
         crawler.close()
         for src in src_files:
-            print(src.src)
+            print("for src in srce_files ",src.src)
         return src_files
     except Exception as e:
         print(e)
@@ -126,5 +126,6 @@ def crawl_git_repository(background_tasks: BackgroundTasks, url: str, extensions
 @router.get("/crawl")
 async def perform_crawl(background_tasks: BackgroundTasks, url: str, extensions: List[str] = Query(...)):
     # 비동기 작업으로 크롤링 실행
+    print("extensions: ",extensions)
     background_tasks.add_task(crawl_git_repository, background_tasks, url, extensions)
     return {"message": "Crawling started", "url": url, "extensions": extensions}
