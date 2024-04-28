@@ -128,7 +128,7 @@ const pollingStatus = (username, reponame) => {
     // start interval
     const interval = setInterval(()=>{
         pollingFetch();
-    },10*1000);
+    },20*1000);
 
     // stop interval
     const clearPolling = () => {

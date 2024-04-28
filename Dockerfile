@@ -11,3 +11,4 @@ COPY . /code
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
 
+# docker build -t rejs/github-sub:latest .

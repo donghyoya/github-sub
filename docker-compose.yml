@@ -32,11 +32,11 @@ services:
     ports:
       - 6379:6379
   server:
-    image: plz
+    image: rejs/github-sub:latest
     ports:
       - 8080:80
     volumes:
-      - .env:/code/.env
+      - .env:/code/.env # 설정 파일 적용법
 
 networks:
   default:
