@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>github sub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/result.css') }}">
+</head>
+<body>
+<div class="container">
+<div>
+    <h1>
+        GITHUB SUB
+    </h1>
+    <p>
+        github repository의 code들을 한번에 확인해보십시오.
+        chat gpt의 코드 해석은 덤입니다.
+    </p>
+</div>
+<div>
+    <form action="" id="repo-form">
+        <input type="text" name="url" id="url" placeholder="github repository url을 입력해주십시오">
+        <button type="submit">제출</button>
+        <p id="form-info"></p>
+    </form>
+</div>
+
+<div id="result">
+    <div id="result-repo"></div>
+    <div id="result-ai"></div>
+    <div id="result-code"></div>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', path='js/api.js') }}"></script>
+
+</body>
+</html>

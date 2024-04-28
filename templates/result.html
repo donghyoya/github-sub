@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/result.css') }}">
+</head>
+
+<body>
+<div class="container">
+<div>
+    <h1>
+        <span>{{repo.username}}/{{repo.reponame}}</span>
+    </h1>
+    <h3>github repository <span>{{repo.username}}/{{repo.reponame}}</span> 에 있는 source code에 대한 crawling 결과입니다.</h3>
+</div>
+<hr>
+<!-- start ai score and comment -->
+<div>
+    <h1>{{repo.ai_score}}</h1>
+    <p>{{repo.ai_answer}}</p>
+</div>
+<!-- end ai score and comment -->
+<hr>
+<ul>
+{% for source in repo.sources %}
+<li>
+<details>
+<!-- start-source-metadata -->
+<summary class="py-2 px-4 bg-success-subtle">
+    <h2>
+        <a href="{{source.url}}">{{source.sourceName}}</a>
+    </h2>
+    <h4>
+        {{source.path}}
+    </h4>
+</summary>
+<!-- end-source-metadata -->
+
+<!-- start-source-code -->
+<div class="bg-body-tertiary">
+<pre class="mt-3 mb-0">
+<code class="py-1 px-4 language-{{source.language}} bg-body-tertiary">
+{{source.sourceCode}}
+</code>
+</pre>
+</div>
+<!-- end-source-code -->
+</details>
+</li>
+{% endfor %}
+</ul>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
