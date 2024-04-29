@@ -18,7 +18,7 @@ def git_crawling(url: str, result_converter):
         # crawling logic
         driver = get_crawling_driver()
         crawler = GitCrawler(driver)
-        crawler.start_crawl(url, ["py", "java", "js"])
+        crawler.start_crawl(url)
         src_files = crawler.get_src_files()
         crawler.close()
 

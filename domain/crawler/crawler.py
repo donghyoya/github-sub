@@ -14,13 +14,13 @@ class GitCrawler:
     def __init__(self, driver):
         self.driver = driver
 
-    def start_crawl(self, root_url, extension_option):
+    def start_crawl(self, root_url):
         self.dir_set = set()
         self.src_file_urls = []
         self.queue = []
 
         self.queue.append(root_url)
-        self.extension_option = set(extension_option)
+        self.extension_option = set(GitSrcFiles.EXTENSTION_TO_LANG.values())
 
         while self.queue:
             # print("self queue: ", self.queue)
@@ -83,6 +83,15 @@ class GitSrcFiles:
         'java': 'java',
         'js': 'javascript',
         'py': 'python',
+        'cs':'cs', # highlight js에서 cs라고 지정
+        'c':'c',
+        'cpp':'c++',
+        'go':'golang',
+        'jsx':'jsx',
+        'kt':'kotlin',
+        'php' : 'php',
+        'sql':'sql',
+        'ts':'typescript'
     }
 
     def __init__(self, url, title, src, extension):
