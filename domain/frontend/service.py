@@ -7,8 +7,10 @@ from default.config.crawlerconfig import get_crawling_driver
 from domain.crawler.converter import convert_to_vm
 from domain.crawler.router import GitCrawler
 from domain.crawler.service import git_crawling
-from domain.frontend.mock_repository import add_repository, find_repository
+from domain.frontend.mock_repository import add_repository, find_repository, get_status_repository, \
+    add_status_repository
 from domain.frontend.view_model import VMRepository, VMSourceCode
+from domain.frontend.work_status import WorkStatus
 
 
 def get_row_repository(username, reponame):
@@ -23,7 +25,7 @@ def mock_polling(username:str, reponame:str):
     """
     상태정보 가져와서 리턴
     """
-    return find_repository(username, reponame)
+    return get_status_repository(username, reponame)
 
 def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame: str, url: str):
     """
@@ -32,14 +34,15 @@ def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame:
         상태정보가 있다면 상태정보를 반환한다
     """
     try:
-        repo = find_repository(username,reponame)
-        if repo is not None and repo['status'] != "FAIL":
+        status = get_status_repository(username, reponame)
+        if not status.needCrawling():
             # 상태정보가 있으므로 상태정보를 반환한다
+            repo = VMRepository().set_status(status).set_username(username).set_reponame(reponame)
             return repo
         else:
             # 상태정보가 없거나 실패했다면 크롤링을 재시작할 것
-            repo = VMRepository().set_status("WORKING").set_username(username).set_reponame(reponame)
-            add_repository(username, reponame, repo)
+            repo = VMRepository().set_status(WorkStatus.CRAWLING_NOW).set_username(username).set_reponame(reponame)
+            add_status_repository(username, reponame, WorkStatus.CRAWLING_NOW)
             background_tasks.add_task(mock_crawl_service, username, reponame, url)
             return repo
     except Exception as e:
@@ -49,19 +52,22 @@ def mock_crawl_service(username: str, reponame: str, url: str):
     """
     임시로 만든 크롤링 작업 시작 서비스
     크롤러 도메인을 사용하여 크롤링 작업을 시작한다
-    상태정보를 변경한다
+    상태정보를 변경한다1
     """
-    repo = VMRepository().set_status("WORKING").set_username(username).set_reponame(reponame)
+    repo = VMRepository().set_status(WorkStatus.CRAWLING_NOW).set_username(username).set_reponame(reponame)
     try:
+        add_status_repository(username, reponame, WorkStatus.CRAWLING_NOW) # 상태정보
         sources = git_crawling(url, convert_to_vm)
         repo.set_sources(sources)
-        repo.set_status("CRAWLING_COMPLETE")
+        repo.set_status(WorkStatus.CRAWLING_SUCCESS)
         add_repository(username,reponame, repo)
-
+        add_status_repository(username, reponame, WorkStatus.CRAWLING_SUCCESS) # 상태정보
     except Exception as e:
         print("exception", e)
-        repo.set_status("FAIL")
+        repo.set_status(WorkStatus.CRAWLING_FAIL)
         add_repository(username,reponame,repo)
+        add_status_repository(username, reponame, WorkStatus.CRAWLING_FAIL) # 상태정보
+
 
 def mock_ai_start(background_tasks: BackgroundTasks, username: str, reponame: str):
     """
@@ -69,23 +75,27 @@ def mock_ai_start(background_tasks: BackgroundTasks, username: str, reponame: st
         상태정보가 '크롤링 완료'인 경우에만 AI작업을 시작한다
     """
     try:
-        repo = find_repository(username,reponame)
-        if repo is not None and repo['status'] == "CRAWLING_COMPLETE":
+        # 상태정보 확인
+        status = get_status_repository(username,reponame)
+        if status.needAiApi():
             # 상태정보가 크롤링 완료면 AI 작업을 시작함
+            repo = find_repository(username,reponame)
             repository = VMRepository().from_dict(repo)
-            repository.set_status("AI_WORKING")
-            background_tasks.add_task(mock_ai_service, username, reponame)
+            repository.set_status(WorkStatus.AI_API_NOW)
             add_repository(username, reponame, repository)
+            add_status_repository(username,reponame,WorkStatus.AI_API_NOW)
+            background_tasks.add_task(mock_ai_service, username, reponame)
             return repository
-        elif repo is None:
-            # 상태정보가 없으면 FAIL을 붙여서 반환한다
-            repository = VMRepository().set_status("FAIL").set_username(username).set_reponame(reponame)
+        elif status == WorkStatus.NONE:
+            # 상태정보가 없으면 NONE 붙여서 반환한다
+            repository = VMRepository().set_status(WorkStatus.NONE).set_username(username).set_reponame(reponame)
             return repository
         else:
             # 상태정보가 있는데 그 외의 상황이면 그냥 그대로 반환한다
+            repo = VMRepository().set_status(status).set_username(username).set_reponame(reponame)
             return repo
     except Exception as e:
-        print(e)
+        return VMRepository().set_status(WorkStatus.NONE).set_username(username).set_reponame(reponame)
 
 
 def mock_ai_service(username: str, reponame: str):
@@ -98,14 +108,17 @@ def mock_ai_service(username: str, reponame: str):
         print("End sleep")
         repo = find_repository(username,reponame)
         repo = VMRepository().from_dict(repo)
-        repo.set_status("AI_COMPLETE")
         repo.set_ai_score("F").set_ai_answer("AI가 작성한 코멘트가 들어올 위치입니다.")
+
+        repo.set_status(WorkStatus.AI_API_SUCCESS)
         add_repository(username,reponame, repo)
+        add_status_repository(username,reponame, WorkStatus.AI_API_SUCCESS) # 상태정보
     except:
         repo = find_repository(username,reponame)
         repo = VMRepository().from_dict(repo)
-        repo.set_status("FAIL")
+        repo.set_status(WorkStatus.AI_API_FAIL)
         add_repository(username,reponame, repo)
+        add_status_repository(username, reponame, WorkStatus.AI_API_FAIL)  # 상태정보
 
 
 # utils

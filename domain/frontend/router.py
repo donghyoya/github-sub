@@ -98,12 +98,14 @@ def post_crawl(form: RepositoryForm, background_tasks: BackgroundTasks):
 
 @router.get("/mock/polling/{username}/{reponame}")
 def get_polling(username: str, reponame: str):
-    repo = mock_polling(username, reponame)
-    if repo is not None:
-        return repo
+    status = mock_polling(username, reponame)
+    if status is not None:
+        return {
+            'status' : status
+        }
     else:
         return {
-            'status' : 'Not Found'
+            'status' : 'NONE'
         }
 
 @router.post("/mock/ai")

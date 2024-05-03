@@ -20,7 +20,7 @@ class GitCrawler:
         self.queue = []
 
         self.queue.append(root_url)
-        self.extension_option = set(GitSrcFiles.EXTENSTION_TO_LANG.values())
+        self.extension_option = set(GitSrcFiles.EXTENSTION_TO_LANG.keys())
 
         while self.queue:
             # print("self queue: ", self.queue)
@@ -42,6 +42,7 @@ class GitCrawler:
                 if href and href not in self.dir_set:
                     self.dir_set.add(href)
                     src_extension = re.findall(self.SOURCE_EXTENSION_PATTERN, href)
+                    # print("is src?",href, src_extension)
                     if src_extension and src_extension[0] in self.extension_option:
                         self.src_file_urls.append((href, src_extension[0]))
                     elif "/tree" in href:
@@ -56,6 +57,7 @@ class GitCrawler:
         self.driver.quit()
 
     def get_src_files(self):
+        # print("get_src_files")
         src_files = []
         for url, extension in self.src_file_urls:
             # print(url, extension)
@@ -104,3 +106,19 @@ class GitSrcFiles:
             self.language = GitSrcFiles.EXTENSTION_TO_LANG[extension]
         else:
             self.language = extension
+
+if __name__ == '__main__':
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.set_capability('browserName', 'chrome')
+
+    driver = webdriver.Remote(command_executor="http://localhost:4444/wd/hub", options=options)
+    driver.implicitly_wait(10) # seconds
+
+    crawler = GitCrawler(driver)
+    test_url = "https://github.com/donghyoya/github-sub"
+    crawler.start_crawl(test_url)
+    src = crawler.get_src_files()
+    print(len(src))

@@ -195,16 +195,16 @@ const requestAi = (username, reponame) => {
 /* utils */
 const checkWorkState = (status) => {
     console.log(status);
-    if(status === 'WORKING'){
+    if(status === 'CRAWLING_NOW'){
         // crawling 작업 중
         return 100;
-    }else if(status === 'CRAWLING_COMPLETE'){
+    }else if(status === 'CRAWLING_SUCCESS'){
         // 크롤링 완료
         return 110;
-    }else if(status === 'AI_WORKING'){
+    }else if(status === 'AI_API_NOW'){
         // AI 작업 중
         return 200;
-    }else if(status === 'AI_COMPLETE'){
+    }else if(status === 'AI_API_SUCCESS'){
         // AI 작업 완료
         return 210;
     }else{
