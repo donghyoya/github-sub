@@ -9,7 +9,7 @@
 </head>
 <body class="bg-body-tertiary">
 <div class="container">
-<div>
+<div class="text-center">
     <h1>
         GITHUB SUB
     </h1>
@@ -20,8 +20,10 @@
 </div>
 <div>
     <form action="" id="repo-form">
-        <input type="text" name="url" id="url" placeholder="github repository url을 입력해주십시오">
-        <button type="submit">제출</button>
+        <div class="input-group">
+            <input type="text" name="url" id="url" placeholder="github repository url을 입력해주십시오" class="form-control" >
+            <button type="submit" class="btn btn-outline-secondary">제출</button>
+        </div>
         <p id="form-info"></p>
     </form>
 </div>
