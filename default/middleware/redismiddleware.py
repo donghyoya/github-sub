@@ -8,7 +8,7 @@ import os
 load_dotenv(".env")
 
 # Redis 클라이언트 초기화
-redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+redis_client = redis.Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), db=0, decode_responses=True)
 
 async def redis_middleware(request: Request, call_next):
     # 미들웨어를 적용하지 않을 경로 목록
