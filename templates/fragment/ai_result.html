@@ -1,6 +1,19 @@
-<div>
-    <h1>Chat GPT의 코드 리뷰 결과</h1>
-    <h1>AI의 점수 = <span>{{repo.ai_score}}</span></h1>
-    <h3>AI의 코멘트</h3>
-    <p>{{repo.ai_answer}}</p>
+<div class="p-5 text-center bg-body-tertiary rounded">
+    <h1 class="fw-bold border-bottom pb-2 mb-2">Chat GPT의 코드 리뷰 결과</h1>
+    <div class="row">
+        <div class="col-3 fw-bold border-end">
+            AI의 점수
+        </div>
+        <div class="col-9">
+            {{repo.ai_score}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-3 fw-bold border-end">
+            AI의 코멘트
+        </div>
+        <div class="col-9">
+            {{repo.ai_answer}}
+        </div>
+    </div>
 </div>
