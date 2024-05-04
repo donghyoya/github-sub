@@ -89,8 +89,8 @@ def get_repository_for_user(
 def post_crawl(form: RepositoryForm, background_tasks: BackgroundTasks):
     repo = url_checker(form.url)
     if repo is not None:
-        repository = mock_crawl_start(background_tasks, repo[0], repo[1], form.url)
-        return repository
+        status = mock_crawl_start(background_tasks, repo[0], repo[1], form.url)
+        return status
     else:
         return {
             'status' : 'FAIL'
@@ -99,18 +99,11 @@ def post_crawl(form: RepositoryForm, background_tasks: BackgroundTasks):
 @router.get("/mock/polling/{username}/{reponame}")
 def get_polling(username: str, reponame: str):
     status = mock_polling(username, reponame)
-    if status is not None:
-        return {
-            'status' : status
-        }
-    else:
-        return {
-            'status' : 'NONE'
-        }
+    return status
 
 @router.post("/mock/ai")
 def get_mock_ai(form: RequestAiForm, background_tasks: BackgroundTasks):
-    repo = mock_ai_start(background_tasks, form.username, form.reponame)
-    return repo
+    status = mock_ai_start(background_tasks, form.username, form.reponame)
+    return status
 
 # end of mock

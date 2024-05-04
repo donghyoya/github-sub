@@ -4,7 +4,7 @@ import json
 
 from default.config.redisdbconfig import get_redis
 from domain.frontend.view_model import VMRepository, VMSourceCode
-from domain.frontend.work_status import WorkStatus
+from domain.frontend.status_service import WorkStatus
 
 
 def add_status_repository(username, reponame, status: WorkStatus):

@@ -194,7 +194,7 @@ const requestAi = (username, reponame) => {
 
 /* utils */
 const checkWorkState = (status) => {
-    console.log(status);
+    console.log("checkWorkState", status);
     if(status === 'CRAWLING_NOW'){
         // crawling 작업 중
         return 100;

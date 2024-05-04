@@ -1,6 +1,3 @@
-from domain.frontend.work_status import WorkStatus
-
-
 class VMRepository:
     def __init__(self):
         self.username = None
@@ -8,7 +5,6 @@ class VMRepository:
         self.ai_answer = None
         self.ai_score = None
         self.sources = None
-        self.status = None
 
     def set_username(self, username):
         self.username = username
@@ -30,10 +26,6 @@ class VMRepository:
         self.sources = sources
         return self
 
-    def set_status(self, status: WorkStatus):
-        self.status = status
-        return self
-
     def to_dict(self):
         data = self.__dict__
         sources = []
@@ -41,7 +33,6 @@ class VMRepository:
             for source in self.sources:
                 sources.append(source.to_dict())
             data['sources'] = sources
-        data['status'] = self.status.value
         return data
 
     def from_dict(self, data:dict):
@@ -49,7 +40,6 @@ class VMRepository:
         self.reponame = data['reponame']
         self.ai_answer = data['ai_answer']
         self.ai_score = data['ai_score']
-        self.status = WorkStatus.from_string(data['status'])
         self.sources = []
         for src_data in data['sources']:
             self.sources.append(
