@@ -1,18 +1,22 @@
-<ul>
+<ul class="my-3 p-3 bg-white rounded shadow-sm">
+<h6 class="border-bottom pb-2 mb-0">
+    source code 모음
+</h6>
 {% for source in repo.sources %}
-<li>
-<details>
-<!-- start-source-metadata -->
-<summary class="py-2 px-4 bg-success-subtle">
-    <h2>
-        <a href="{{source.url}}">{{source.sourceName}}</a>
-    </h2>
-    <h4>
+<li class="d-flex text-body-secondary pt-3">
+<details class="w-100">
+<summary >
+<p class="pb-3 mb-0 small lh-sm border-bottom">
+    <strong class="d-block text-gray-dark">
+        <a href="{{source.url}}" target="_blank">
+            {{source.sourceName}}
+        </a>
+    </strong>
+    <span>
         {{source.path}}
-    </h4>
+    </span>
+</p>
 </summary>
-<!-- end-source-metadata -->
-
 <!-- start-source-code -->
 <div class="bg-body-tertiary">
 <pre class="mt-3 mb-0">

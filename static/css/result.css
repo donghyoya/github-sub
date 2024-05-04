@@ -5,23 +5,10 @@ summary{
     display: list-item;
     list-style: none;
     cursor: pointer;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-}
-details{
-    margin: 10px 0;
 }
 
 details[open] summary {
     background-color: #e0e0e0;
-    border-radius: 10px 10px 0 0;
-}
-
-details[open] div{
-    border: 1px solid #ccc;
-    font-size: 0.7em;
-    border-radius: 0 0 10px 10px;
 }
 
 summary::marker {
@@ -31,4 +18,10 @@ summary::marker {
 
 summary::-webkit-details-marker {
     color: #333;
+}
+
+a {
+    text-decoration: none; /* 링크 텍스트에 밑줄 제거 */
+    color: inherit; /* 링크 색상을 부모 요소에서 상속 */
+    cursor: pointer; /* 링크 위로 마우스 커서를 가져다 놓으면 포인터 모양으로 변경 */
 }
