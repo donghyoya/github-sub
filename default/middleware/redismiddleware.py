@@ -1,5 +1,11 @@
 from fastapi import Request
 import redis
+import os
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv(".env")
 
 # Redis 클라이언트 초기화
 redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
