@@ -25,10 +25,12 @@ def get_db():
 
 def get_row_repository(username, reponame):
     ret = find_repository(username, reponame)
+    print("get_row ret: ",ret)
     return ret
 
 def get_repository(username, reponame):
     ret = find_repository(username, reponame)
+    print("ret get_reposi ",ret)
     return ret
 
 def mock_polling(username:str, reponame:str):
