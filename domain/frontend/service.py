@@ -4,11 +4,23 @@ import time
 from fastapi import BackgroundTasks
 
 from default.config.crawlerconfig import get_crawling_driver
+from default.config import dbconfig
+
 from domain.crawler.converter import convert_to_vm
 from domain.crawler.router import GitCrawler
 from domain.crawler.service import git_crawling
 from domain.frontend.mock_repository import add_repository, find_repository
 from domain.frontend.view_model import VMRepository, VMSourceCode
+
+from domain.user.schema import CreateUserSchema
+from domain.user.service import create_user
+
+def get_db():
+    try:
+        db = dbconfig.SessionLocal()
+        yield db
+    finally:
+        db.close()
 
 
 def get_row_repository(username, reponame):
@@ -31,6 +43,12 @@ def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame:
         상태정보가 없거나 실패했다면 크롤링을 재시작할 것
         상태정보가 있다면 상태정보를 반환한다
     """
+
+    # user 생성
+    user = CreateUserSchema(username=username,site=url)
+    create_user(get_db(), user)
+
+
     try:
         repo = find_repository(username,reponame)
         if repo is not None and repo['status'] != "FAIL":
@@ -51,10 +69,14 @@ def mock_crawl_service(username: str, reponame: str, url: str):
     크롤러 도메인을 사용하여 크롤링 작업을 시작한다
     상태정보를 변경한다
     """
+
+    session = get_db()
+
     repo = VMRepository().set_status("WORKING").set_username(username).set_reponame(reponame)
     try:
         sources = git_crawling(url, convert_to_vm)
         repo.set_sources(sources)
+        
         repo.set_status("CRAWLING_COMPLETE")
         add_repository(username,reponame, repo)
 
