@@ -32,7 +32,8 @@ services:
     ports:
       - 6379:6379
   server:
-    image: rejs/github-sub:latest
+    # image: rejs/github-sub:latest
+    build: .
     ports:
       - 8080:80
     volumes:

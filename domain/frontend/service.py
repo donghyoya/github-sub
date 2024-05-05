@@ -46,10 +46,9 @@ def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame:
         상태정보가 있다면 상태정보를 반환한다
     """
 
-    # user 생성
-    user = CreateUserSchema(username=username,site=url)
+    # # user 생성
+    user = CreateUserSchema(username=username, site=url, connectCnt=0, follower=0, following=0)
     create_user(get_db(), user)
-
 
     try:
         repo = find_repository(username,reponame)
