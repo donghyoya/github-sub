@@ -16,6 +16,7 @@ document.getElementById("repo-form").addEventListener("submit", (event) =>{
     });
 
     const jsonData = JSON.stringify(formJsonData);
+    setCrawlingProcessBox(true);
 
     /**
      * 크롤링 요청은 편의상 form 객체에서 진행함
@@ -147,6 +148,7 @@ const getSourceCode = (username, reponame) => {
     .then(data=>{
         resultCode.innerHTML = data;
         hljs.highlightAll();
+        setCrawlingProcessBox(false);
     })
 }
 
@@ -167,6 +169,7 @@ const getAiResult = (username, reponame) => {
     }).then(resp=>resp.text())
     .then(data=>{
         resultAi.innerHTML = data;
+        setAiProcessBox(false);
     })
 }
 
@@ -189,6 +192,7 @@ const requestAi = (username, reponame) => {
     }).then(resp => resp.json())
         .then(data=>{
             console.log('request ai', data);
+            setAiProcessBox(true);
         });
 }
 
