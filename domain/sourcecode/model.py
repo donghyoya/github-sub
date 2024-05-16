@@ -11,6 +11,6 @@ class SourceCode(Base):
     sourceName = Column(String(25))
     sourceCode = Column(Text)
     path = Column(String(100))
-    rid = Column(BigInteger, ForeignKey('Repository.rid'))
     url = Column(String(255))
-    repository = relationship("Repository", back_populates="source_codes")
+    rid = Column(BigInteger, ForeignKey('Repository.rid'))
+    repository = relationship("Repository", back_populates="source_codes", cascade="all delete-orphan")

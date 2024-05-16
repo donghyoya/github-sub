@@ -13,4 +13,4 @@ class GithubUser(Base):
     connectCnt = Column(Integer)
     follower = Column(Integer)
     following = Column(Integer)
-    repositories = relationship("Repository", back_populates="github_user")
+    repositories = relationship("Repository", back_populates="github_user",cascade="all delete-orphan")
