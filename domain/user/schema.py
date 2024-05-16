@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 class GithubUserSchema(BaseModel):
-    uid: Optional[int]
     username: Optional[str] = Field(None, examples="testusername")
     site: Optional[str] = Field(None, examples="https://github/donghyoya")
     connectCnt: Optional[int] = Field(None, examples=1)
@@ -18,5 +17,4 @@ class CreateUserSchema(GithubUserSchema):
     connectCnt: int
     follower: int
     following: int
-
 
