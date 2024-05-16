@@ -14,3 +14,4 @@ class Repository(Base):
     guid = Column(BigInteger, ForeignKey('GithubUser.uid'))
     github_user = relationship("GithubUser", back_populates="repositories")
     ai_results = relationship("AiResult", back_populates="repository")
+    source_codes = relationship("SourceCode", back_populates="repository")
