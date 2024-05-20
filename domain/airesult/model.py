@@ -7,7 +7,7 @@ from default.config.dbconfig import Base
 
 
 class AiResult(Base):
-    __tablename__ = 'AiResult'
+    __tablename__ = "AiResult"
     aid = Column(BigInteger, primary_key=True)
     model = Column(String(10))
     answer = Column(Text)
