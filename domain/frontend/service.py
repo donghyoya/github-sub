@@ -12,9 +12,6 @@ from domain.crawler.service import git_crawling
 from domain.frontend.mock_repository import add_repository, find_repository
 from domain.frontend.view_model import VMRepository, VMSourceCode
 
-from domain.user.schema import CreateUserSchema
-from domain.user.service import create_user
-
 def get_db():
     try:
         db = dbconfig.SessionLocal()
@@ -25,12 +22,12 @@ def get_db():
 
 def get_row_repository(username, reponame):
     ret = find_repository(username, reponame)
-    print("get_row ret: ",ret)
+    # print("get_row ret: ",ret)
     return ret
 
 def get_repository(username, reponame):
     ret = find_repository(username, reponame)
-    print("ret get_reposi ",ret)
+    # print("ret get_reposi ",ret)
     return ret
 
 def mock_polling(username:str, reponame:str):
@@ -45,10 +42,10 @@ def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame:
         상태정보가 없거나 실패했다면 크롤링을 재시작할 것
         상태정보가 있다면 상태정보를 반환한다
     """
+    print("username: ",username)
+    print("reponame: ",reponame)
 
-    # # user 생성
-    user = CreateUserSchema(username=username, site=url, connectCnt=0, follower=0, following=0)
-    create_user(get_db(), user)
+    # user 생성
 
     try:
         repo = find_repository(username,reponame)
@@ -78,6 +75,8 @@ def mock_crawl_service(username: str, reponame: str, url: str):
         sources = git_crawling(url, convert_to_vm)
         repo.set_sources(sources)
         
+        print("source: ",sources)
+
         repo.set_status("CRAWLING_COMPLETE")
         add_repository(username,reponame, repo)
 
