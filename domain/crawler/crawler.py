@@ -70,6 +70,8 @@ class GitCrawler:
         # textarea = EC.presence_of_element_located((By.ID, 'read-only-cursor-text-area'))
         # print("textarea",textarea)
         src = textarea.text
+
+        print("crawler src: ",src)
         # print("textarea", src)
         srcName = url.split("/")[-1]
         # print(srcName)

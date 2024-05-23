@@ -74,8 +74,6 @@ def mock_crawl_service(username: str, reponame: str, url: str):
     try:
         sources = git_crawling(url, convert_to_vm)
         repo.set_sources(sources)
-        
-        print("source: ",sources)
 
         repo.set_status("CRAWLING_COMPLETE")
         add_repository(username,reponame, repo)
