@@ -12,6 +12,11 @@ from domain.crawler.service import git_crawling
 from domain.frontend.mock_repository import add_repository, find_repository
 from domain.frontend.view_model import VMRepository, VMSourceCode
 
+from domain.user.model import GithubUser
+from domain.user import service as gUserService
+from domain.repository.model import Repository
+
+
 def get_db():
     try:
         db = dbconfig.SessionLocal()
@@ -45,7 +50,21 @@ def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame:
     print("username: ",username)
     print("reponame: ",reponame)
 
+
+    gitUser = GithubUser()
+    gitUser = gUserService.get_user_by_username(username=username)
+    if(gitUser == None):
+        gitUser = GithubUser(username=username,site=url,connectCnt=1,follower=0,follownig=0)
+        Repository()
+    else:
+        addcnt = gitUser.connectCnt + 1
+        gitUser.connectCnt = addcnt
+        gUserService.update_user(gitUser)
+    
+    
+        
     # user 생성
+    
 
     try:
         repo = find_repository(username,reponame)
@@ -88,6 +107,9 @@ def mock_ai_start(background_tasks: BackgroundTasks, username: str, reponame: st
         상태정보를 확인하고 ai 작업을 시작한다.
         상태정보가 '크롤링 완료'인 경우에만 AI작업을 시작한다
     """
+
+    print("username:" ,username)
+    print("reponame: ",reponame)
     try:
         repo = find_repository(username,reponame)
         if repo is not None and repo['status'] == "CRAWLING_COMPLETE":

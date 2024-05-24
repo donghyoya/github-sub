@@ -72,6 +72,7 @@ class GitCrawler:
         src = textarea.text
 
         print("crawler src: ",src)
+        print("==================")
         # print("textarea", src)
         srcName = url.split("/")[-1]
         # print(srcName)
