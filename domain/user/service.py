@@ -46,7 +46,7 @@ def delete_user(db: Session, user_id: int):
 def get_user_by_username(db: Session, username: str) -> GithubUser:
     return db.query(GithubUser).filter(GithubUser.username == username).first()
 
-@update_user.register
+@update_user.register(CreateUserSchema)
 def _(db: Session, user_id: int, user: CreateUserSchema):
     db_user = get_user(db, user_id)
     if not db_user:

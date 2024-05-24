@@ -32,7 +32,7 @@ def delete_source_code(db: Session, sid: int):
     return False
 
 # SourceCodeSchema 타입에 대한 함수
-@create_source_code.register
+@create_source_code.register(SourceCodeSchema)
 def _(db: Session, source_code: SourceCodeSchema):
     db_source_code = SourceCode(**source_code.dict())
     db.add(db_source_code)
@@ -41,7 +41,7 @@ def _(db: Session, source_code: SourceCodeSchema):
     return db_source_code
 
 # SourceCode 모델 인스턴스에 대한 함수
-@create_source_code.register
+@create_source_code.register(SourceCode)
 def _(db: Session, source_code: SourceCode):
     db.add(source_code)
     db.commit()
