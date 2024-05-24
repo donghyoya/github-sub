@@ -9,5 +9,8 @@ def conv2orm(src_files) -> list[SourceCode]:
         source.path = src.directory
         source.url = src.url
         source.sourceCode = src.src
+        source.language = src.language
+
+        sources.append(source)
 
     return sources
