@@ -11,11 +11,11 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(GithubUser).offset(skip).limit(limit).all()
 
 @singledispatch
-def update_user(db: Session, user_id: int, user):
+def update_user(db: Session, user_id: int, user) -> GithubUser:
     raise NotImplementedError("Unsupported type")
 
 @singledispatch
-def create_user(db: Session, user):
+def create_user(db: Session, user) -> GithubUser:
     raise NotImplementedError("Unsupported type")
 
 # GithubUser 모델 인스턴스에 대한 함수
@@ -34,7 +34,6 @@ def _(db: Session, user: CreateUserSchema) -> GithubUser:
     db.commit()
     db.refresh(db_user)
     return db_user
-
 
 def delete_user(db: Session, user_id: int):
     db_user = get_user(db, user_id)

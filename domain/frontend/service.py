@@ -6,7 +6,8 @@ from fastapi import BackgroundTasks
 from default.config.crawlerconfig import get_crawling_driver
 from default.config import dbconfig
 
-from domain.crawler.converter import convert_to_vm
+# from domain.crawler.converter import convert_to_vm
+from domain.crawler.OrmConverter import conv2orm
 from domain.crawler.router import GitCrawler
 from domain.crawler.service import git_crawling
 from domain.frontend.mock_repository import add_repository, find_repository
@@ -70,27 +71,26 @@ def mock_crawl_service(username: str, reponame: str, url: str):
     크롤러 도메인을 사용하여 크롤링 작업을 시작한다
     상태정보를 변경한다
     """
+    session = get_db()
 
-    gitUser = GithubUserService.get_user_by_username(get_db(),username)
-    repository = RepositoryService.get_repository_by_name_and_guid(get_db(),repo_name=reponame, guid=gitUser.uid)
+    gitUser = GithubUserService.get_user_by_username(session,username)
+    repository = RepositoryService.get_repository_by_name_and_guid(session,repo_name=reponame, guid=gitUser.uid)
+    
     if(gitUser == None):
         gitUser = GithubUser(username=username,site=url,connectCnt=1,follower=0,follownig=0)
-        
-        repository = Repository(connectCnt=1,repo_name=reponame,gitUser)
-    elif():
+        gitUser = GithubUserService.create_user(session,gitUser)
+        repository = Repository(connectCnt=1,repo_name=reponame,guid=gitUser.uid)
+    elif(gitUser != None and repository == None):
         addcnt = gitUser.connectCnt + 1
         gitUser.connectCnt = addcnt
-        GithubUserService.update_user(get_db(),gitUser)
+        GithubUserService.update_user(session,gitUser)
+        repository = Repository(connectCnt=1,repo_name=reponame,guid=gitUser.uid)
     
     
-        
-    # user 생성
-
-    session = get_db()
 
     repo = VMRepository().set_status("WORKING").set_username(username).set_reponame(reponame)
     try:
-        sources = git_crawling(url, convert_to_vm)
+        sources = git_crawling(url, conv2orm)
         repo.set_sources(sources)
 
         repo.set_status("CRAWLING_COMPLETE")
