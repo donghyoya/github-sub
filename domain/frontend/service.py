@@ -13,8 +13,9 @@ from domain.frontend.mock_repository import add_repository, find_repository
 from domain.frontend.view_model import VMRepository, VMSourceCode
 
 from domain.user.model import GithubUser
-from domain.user import service as gUserService
+from domain.user import service as GithubUserService
 from domain.repository.model import Repository
+from domain.repository import service as RepositoryService
 
 
 def get_db():
@@ -49,23 +50,6 @@ def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame:
     """
     print("username: ",username)
     print("reponame: ",reponame)
-
-
-    gitUser = GithubUser()
-    gitUser = gUserService.get_user_by_username(username=username)
-    if(gitUser == None):
-        gitUser = GithubUser(username=username,site=url,connectCnt=1,follower=0,follownig=0)
-        Repository()
-    else:
-        addcnt = gitUser.connectCnt + 1
-        gitUser.connectCnt = addcnt
-        gUserService.update_user(gitUser)
-    
-    
-        
-    # user 생성
-    
-
     try:
         repo = find_repository(username,reponame)
         if repo is not None and repo['status'] != "FAIL":
@@ -86,6 +70,21 @@ def mock_crawl_service(username: str, reponame: str, url: str):
     크롤러 도메인을 사용하여 크롤링 작업을 시작한다
     상태정보를 변경한다
     """
+
+    gitUser = GithubUserService.get_user_by_username(get_db(),username)
+    repository = RepositoryService.get_repository_by_name_and_guid(get_db(),repo_name=reponame, guid=gitUser.uid)
+    if(gitUser == None):
+        gitUser = GithubUser(username=username,site=url,connectCnt=1,follower=0,follownig=0)
+        
+        repository = Repository(connectCnt=1,repo_name=reponame,gitUser)
+    elif():
+        addcnt = gitUser.connectCnt + 1
+        gitUser.connectCnt = addcnt
+        GithubUserService.update_user(get_db(),gitUser)
+    
+    
+        
+    # user 생성
 
     session = get_db()
 

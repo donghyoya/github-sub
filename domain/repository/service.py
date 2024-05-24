@@ -3,8 +3,6 @@ from sqlalchemy import or_
 from .model import Repository
 from .schema import RepositorySchema
 
-
-
 def create_repository(db: Session, repository: RepositorySchema):
     db_repository = Repository(**repository.dict())
     db.add(db_repository)
@@ -31,3 +29,10 @@ def delete_repository(db: Session, rid: int):
         db.commit()
         return True
     return False
+
+def get_repository_by_name_and_guid(db: Session, repo_name: str, guid: int):
+    repository = db.query(Repository).filter(
+        Repository.repoName == repo_name,
+        Repository.guid == guid
+    ).first()
+    return repository
