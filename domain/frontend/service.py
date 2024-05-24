@@ -76,39 +76,33 @@ def mock_crawl_service(username: str, reponame: str, url: str):
     상태정보를 변경한다
     """
     with get_db_context() as session:
+        gitUser = GithubUserService.get_user_by_username(session, username)
         
-        gitUser = GithubUserService.get_user_by_username(session,username)
-        repository = RepositoryService.get_repository_by_name_and_guid(session,repo_name=reponame, guid=gitUser.uid)
+        # gitUser가 None인 경우 새로운 사용자를 생성
+        if gitUser is None:
+            gitUser = GithubUser(username=username, site=url, connectCnt=1, follower=0, following=0)
+            gitUser = GithubUserService.create_user(session, gitUser)
+
+        # 이제 gitUser는 반드시 유효한 객체임을 보장
+        repository = RepositoryService.get_repository_by_name_and_guid(session, repo_name=reponame, guid=gitUser.uid)
         
-        if(gitUser == None):
-            gitUser = GithubUser(username=username,site=url,connectCnt=1,follower=0,follownig=0)
-            gitUser = GithubUserService.create_user(session,gitUser)
-            repository = Repository(connectCnt=1,repo_name=reponame,guid=gitUser.uid)
-        elif(gitUser != None and repository == None):
-            addcnt = gitUser.connectCnt + 1
-            gitUser.connectCnt = addcnt
-            GithubUserService.update_user(session,user_id=gitUser.uid,user=gitUser)
-            repository = Repository(connectCnt=1,repo_name=reponame,guid=gitUser.uid, language="")
-            repository = RepositoryService.create_repository(session,repository)
+        if repository is None:
+            repository = Repository(connectCnt=1, repo_name=reponame, guid=gitUser.uid, language="")
+            repository = RepositoryService.create_repository(session, repository)
 
         repo = VMRepository().set_status("WORKING").set_username(username).set_reponame(reponame)
         try:
             sources = git_crawling(url, conv2orm)
-
             for source in sources:
-                dbsourcecode = source
-                dbsourcecode.rid = repository.rid
-                SourceCodeService.create_source_code(session, dbsourcecode)
+                source.rid = repository.rid
+                SourceCodeService.create_source_code(session, source)
             repo.set_sources(sources)
-
             repo.set_status("CRAWLING_COMPLETE")
-
-            add_repository(username,reponame, repo)
-
+            add_repository(username, reponame, repo)
         except Exception as e:
             print("exception", e)
             repo.set_status("FAIL")
-            add_repository(username,reponame,repo)
+            add_repository(username, reponame, repo)
 
 def mock_ai_start(background_tasks: BackgroundTasks, username: str, reponame: str):
     """
