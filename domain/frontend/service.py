@@ -17,6 +17,8 @@ from domain.user.model import GithubUser
 from domain.user import service as GithubUserService
 from domain.repository.model import Repository
 from domain.repository import service as RepositoryService
+from domain.sourcecode.model import SourceCode
+from domain.sourcecode import service as SourceCodeService
 
 
 def get_db():
@@ -84,16 +86,21 @@ def mock_crawl_service(username: str, reponame: str, url: str):
         addcnt = gitUser.connectCnt + 1
         gitUser.connectCnt = addcnt
         GithubUserService.update_user(session,gitUser)
-        repository = Repository(connectCnt=1,repo_name=reponame,guid=gitUser.uid)
-    
-    
+        repository = Repository(connectCnt=1,repo_name=reponame,guid=gitUser.uid, language="")
+        repository = RepositoryService.create_repository(session,repository)
 
     repo = VMRepository().set_status("WORKING").set_username(username).set_reponame(reponame)
     try:
         sources = git_crawling(url, conv2orm)
+
+        for source in sources:
+            dbsourcecode = source
+            dbsourcecode.rid = repository.rid
+            SourceCodeService.create_source_code(session, dbsourcecode)
         repo.set_sources(sources)
 
         repo.set_status("CRAWLING_COMPLETE")
+        
         add_repository(username,reponame, repo)
 
     except Exception as e:
