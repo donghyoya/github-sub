@@ -11,24 +11,18 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(GithubUser).offset(skip).limit(limit).all()
 
 @singledispatch
-def update_user(db: Session, user_id: int, user) -> GithubUser:
+def create_user(user, db: Session):
     raise NotImplementedError("Unsupported type")
 
-@singledispatch
-def create_user(db: Session, user) -> GithubUser:
-    raise NotImplementedError("Unsupported type")
-
-# GithubUser 모델 인스턴스에 대한 함수
 @create_user.register(GithubUser)
-def _(db: Session, user: GithubUser) -> GithubUser:
+def create_user_model(user: GithubUser, db: Session) -> GithubUser:
     db.add(user)
     db.commit()
     db.refresh(user)
     return user
 
-# CreateUserSchema 스키마 인스턴스에 대한 함수
 @create_user.register(CreateUserSchema)
-def _(db: Session, user: CreateUserSchema) -> GithubUser:
+def create_user_schema(user: CreateUserSchema, db: Session) -> GithubUser:
     db_user = GithubUser(**user.dict())
     db.add(db_user)
     db.commit()
@@ -46,8 +40,12 @@ def delete_user(db: Session, user_id: int):
 def get_user_by_username(db: Session, username: str) -> GithubUser:
     return db.query(GithubUser).filter(GithubUser.username == username).first()
 
+@singledispatch
+def update_user(user, db: Session, user_id: int) -> GithubUser:
+    raise NotImplementedError("Unsupported type")
+
 @update_user.register(CreateUserSchema)
-def _(db: Session, user_id: int, user: CreateUserSchema):
+def _(user: CreateUserSchema, db: Session, user_id: int, ):
     db_user = get_user(db, user_id)
     if not db_user:
         return None
@@ -57,7 +55,7 @@ def _(db: Session, user_id: int, user: CreateUserSchema):
     return db_user
 
 @update_user.register(GithubUser)
-def _(db: Session, user_id: int, user: GithubUser):
+def _(user: GithubUser, db: Session, user_id: int):
     db_user = db.query(GithubUser).filter(GithubUser.uid == user_id).first()
     if not db_user:
         return None

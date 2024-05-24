@@ -11,7 +11,7 @@ def get_source_codes(db: Session, skip: int = 0, limit: int = 100):
     return db.query(SourceCode).offset(skip).limit(limit).all()
 
 @singledispatch
-def create_source_code(db: Session, source_code):
+def create_source_code(source_code, db: Session):
     raise NotImplementedError("Unsupported type")
 
 def update_source_code(db: Session, sid: int, updates: SourceCodeSchema):
@@ -33,7 +33,7 @@ def delete_source_code(db: Session, sid: int):
 
 # SourceCodeSchema 타입에 대한 함수
 @create_source_code.register(SourceCodeSchema)
-def _(db: Session, source_code: SourceCodeSchema):
+def _(source_code: SourceCodeSchema, db: Session):
     db_source_code = SourceCode(**source_code.dict())
     db.add(db_source_code)
     db.commit()
@@ -42,7 +42,7 @@ def _(db: Session, source_code: SourceCodeSchema):
 
 # SourceCode 모델 인스턴스에 대한 함수
 @create_source_code.register(SourceCode)
-def _(db: Session, source_code: SourceCode):
+def _(source_code: SourceCode, db: Session):
     db.add(source_code)
     db.commit()
     db.refresh(source_code)

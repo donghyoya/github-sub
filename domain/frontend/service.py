@@ -9,7 +9,6 @@ from default.config import dbconfig
 
 # from domain.crawler.converter import convert_to_vm
 from domain.crawler.OrmConverter import conv2orm
-from domain.crawler.router import GitCrawler
 from domain.crawler.service import git_crawling
 from domain.frontend.mock_repository import add_repository, find_repository
 from domain.frontend.view_model import VMRepository, VMSourceCode
@@ -81,21 +80,23 @@ def mock_crawl_service(username: str, reponame: str, url: str):
         # gitUser가 None인 경우 새로운 사용자를 생성
         if gitUser is None:
             gitUser = GithubUser(username=username, site=url, connectCnt=1, follower=0, following=0)
-            gitUser = GithubUserService.create_user(session, gitUser)
+            print("fornt type: ",type(gitUser))
+            gitUser = GithubUserService.create_user(gitUser, session)
 
         # 이제 gitUser는 반드시 유효한 객체임을 보장
-        repository = RepositoryService.get_repository_by_name_and_guid(session, repo_name=reponame, guid=gitUser.uid)
+        repository = RepositoryService.get_repository_by_name_and_guid(session, reponame, gitUser.uid)
         
         if repository is None:
-            repository = Repository(connectCnt=1, repo_name=reponame, guid=gitUser.uid, language="")
-            repository = RepositoryService.create_repository(session, repository)
+            repository = Repository(connectCnt=1, repoName=reponame, guid=gitUser.uid, language="")
+            repository = RepositoryService.create_repository(repository, session)
 
         repo = VMRepository().set_status("WORKING").set_username(username).set_reponame(reponame)
         try:
             sources = git_crawling(url, conv2orm)
             for source in sources:
                 source.rid = repository.rid
-                SourceCodeService.create_source_code(session, source)
+                SourceCodeService.create_source_code(source, session)
+            print("=====finish save sourcecode======")
             repo.set_sources(sources)
             repo.set_status("CRAWLING_COMPLETE")
             add_repository(username, reponame, repo)
