@@ -8,7 +8,7 @@ from default.config.dbconfig import Base
 class SourceCode(Base):
     __tablename__ = "SourceCode"
     sid = Column(BigInteger, primary_key=True,unique=True, autoincrement=True)
-    sourceName = Column(String(25))
+    sourceName = Column(String(255))
     sourceCode = Column(Text)
     path = Column(String(100))
     url = Column(String(255))

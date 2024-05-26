@@ -95,8 +95,8 @@ def mock_crawl_service(username: str, reponame: str, url: str):
             sources = git_crawling(url, conv2orm)
             for source in sources:
                 source.rid = repository.rid
-                SourceCodeService.create_source_code(source, session)
-            print("=====finish save sourcecode======")
+                dbsourc = SourceCodeService.create_source_code(source, session)
+                
             repo.set_sources(sources)
             repo.set_status("CRAWLING_COMPLETE")
             add_repository(username, reponame, repo)
