@@ -11,10 +11,10 @@ def create_repository(repository, db: Session):
 
 # update_repository 함수 오버로딩
 @singledispatch
-def update_repository(updates, db: Session, rid: int):
+def update_repository(updateRepository, db: Session, rid: int):
     raise NotImplementedError("The function needs to be called with specific type")
 
-def get_repository(db: Session, rid: int):
+def get_repository(rid: int, db: Session):
     return db.query(Repository).filter(Repository.rid == rid).first()
 
 def delete_repository(db: Session, rid: int):
@@ -34,8 +34,8 @@ def get_repository_by_name_and_guid(db: Session, repo_name: str, guid: int):
 
 
 @create_repository.register(RepositorySchema)
-def create_repository_schema(updates: RepositorySchema, db: Session):
-    db_repository = Repository(**updates.dict())
+def create_repository_schema(updateRepository: RepositorySchema, db: Session):
+    db_repository = Repository(**updateRepository.dict())
     db.add(db_repository)
     db.commit()
     db.refresh(db_repository)
@@ -50,10 +50,10 @@ def create_repository_model(repository: Repository, db: Session):
 
 
 @update_repository.register(RepositorySchema)
-def update_repository_schema(updates: RepositorySchema, db: Session, rid: int):
-    db_repository = db.query(Repository).filter(Repository.rid == rid).first()
+def update_repository_schema(updateRepository: RepositorySchema, db: Session):
+    db_repository = get_repository(updateRepository.rid,db=db)
     if db_repository:
-        for var, value in updates.dict().items():
+        for var, value in updateRepository.dict().items():
             if value is not None:
                 setattr(db_repository, var, value)
         db.commit()
@@ -61,10 +61,10 @@ def update_repository_schema(updates: RepositorySchema, db: Session, rid: int):
     return None
 
 @update_repository.register(Repository)
-def update_repository_model(updates: Repository, db: Session, rid: int):
-    db_repository = db.query(Repository).filter(Repository.rid == rid).first()
+def update_repository_model(updateRepository: Repository, db: Session, rid: int):
+    db_repository = get_repository(updateRepository.rid, db=db)
     if db_repository:
-        for key, value in vars(updates).items():
+        for key, value in vars(updateRepository).items():
             if value is not None:
                 setattr(db_repository, key, value)
         db.commit()

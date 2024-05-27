@@ -8,7 +8,7 @@ pydantic 으로 받아온 데이터는 api를 통해서 받아오는 경우
 내부에서 동작할때는 sqlalchemy로 하는게 훨씬 효과적
 """
 
-def get_user(db: Session, user_id: int):
+def get_user(user_id: int, db: Session):
     return db.query(GithubUser).filter(GithubUser.uid == user_id).first()
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
@@ -60,7 +60,7 @@ def _(user: GithubUserSchema, db: Session):
 
 @update_user.register(GithubUser)
 def _(user: GithubUser, db: Session):
-    db_user = db.query(GithubUser).filter(GithubUser.uid == user.uid).first()
+    db_user = get_user(user.uid, db=db)
     if not db_user:
         return None
     # Assuming GithubUser model object is fully prepared for update
