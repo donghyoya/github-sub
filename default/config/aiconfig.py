@@ -1,25 +1,28 @@
 from fastapi import FastAPI, Depends
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import openai
-from typing import ClassVar
+from typing import ClassVar, Optional, List
 import os
 
 class AiConfig(BaseSettings):
 
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(
+        env_file=".env",  env_file_encoding='utf-8',
+        env_ignore_empty=True,
+        extra="ignore")
 
     openai_api_key: str
-    model: str
-    messages: list = []
+    output_model: str
+    messages: List[dict] = []
         
-    _instance = None
-    client: ClassVar[openai.OpenAI] = None
-
+    _instance: ClassVar[Optional['AiConfig']] = None
+    client: ClassVar[Optional[openai.OpenAI]] = None
 
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
             cls._instance = cls()
+            cls.client = openai.OpenAI(api_key=cls._instance.openai_api_key)
         return cls._instance
 
     def chat(self, prompt, max_tokens=50):
@@ -30,7 +33,7 @@ class AiConfig(BaseSettings):
         })
 
         completion = self.client.chat.completions.create(
-            model=self.model,
+            model=self.output_model,
             messages=self.messages,
             max_tokens=max_tokens
         )

@@ -18,7 +18,7 @@ def get_db():
         db.close()
         
 def get_ai():
-    return AiConfig()
+    return AiConfig.get_instance()  
 
 
 @router.post("/chat")
