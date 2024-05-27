@@ -2,8 +2,9 @@ from fastapi import APIRouter, Request, BackgroundTasks
 from fastapi.templating import Jinja2Templates
 
 from domain.frontend.schema import RepositoryForm, RequestAiForm
-from domain.frontend.service import get_row_repository, get_repository, url_checker, mock_polling, mock_crawl_start, \
-    mock_ai_start
+from domain.frontend.service import get_row_repository, get_repository, \
+    mock_polling, mock_crawl_start, mock_ai_start
+from default.utils.urlutils import url_checker
 
 router = APIRouter(
     tags=["frontend"]

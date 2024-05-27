@@ -7,21 +7,13 @@ from fastapi import BackgroundTasks
 from default.config.crawlerconfig import get_crawling_driver
 from default.config import dbconfig
 
-# from domain.crawler.converter import convert_to_vm
-
-from domain.crawler.OrmConverter import conv2orm
 from domain.crawler.service import source_crawling
 from domain.frontend.mock_repository import add_repository, find_repository
 from domain.frontend.view_model import VMRepository, VMSourceCode
+from domain.frontend.converter import convert_to_vm
 
-from domain.user.model import GithubUser
-from domain.user import service as GithubUserService
-from domain.repository.model import Repository
-from domain.repository import service as RepositoryService
-from domain.sourcecode.model import SourceCode
-from domain.sourcecode import service as SourceCodeService
-from domain.frontend.status_service import WorkStatus, load_status, save_status, RepositoryWorkingStatus
-
+from domain.frontend.status_service import WorkStatus, \
+    load_status, save_status, RepositoryWorkingStatus
 
 def get_row_repository(username, reponame):
     ret = find_repository(username, reponame)
@@ -45,8 +37,6 @@ def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame:
         상태정보가 없거나 실패했다면 크롤링을 재시작할 것
         상태정보가 있다면 상태정보를 반환한다
     """
-    print("username: ",username)
-    print("reponame: ",reponame)
     try:
         repo = find_repository(username,reponame)
         if repo is not None and repo['status'] != "FAIL":
@@ -63,24 +53,25 @@ def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame:
 
 def mock_crawl_service(username: str, reponame: str, url: str):
     """
-        요청한 username/reponame을 바탕으로 상태정보를 추출한다.
-        상태정보가 없거나 실패했다면 크롤링을 재시작할 것
-        상태정보가 있다면 상태정보를 반환한다
+    임시로 만든 크롤링 작업 시작 서비스
+    크롤러 도메인을 사용하여 크롤링 작업을 시작한다
+    상태정보를 변경한다
     """
     try:
-        status = load_status(username,reponame)
-        if not status.needCrawling():
-            # 상태정보가 있으므로 상태정보를 반환한다
-            return status
-        else:
-            # 상태정보가 없거나 실패했다면 크롤링을 재시작할 것
-            status = save_status(username,reponame,WorkStatus.CRAWLING_NOW)
-            background_tasks.add_task(mock_crawl_service, username, reponame, url)
-            return status
+        # 크롤링 업무
+        sources = source_crawling(url, convert_to_vm)
+
+        # 데이터베이스에 저장
+        repo = VMRepository().set_username(username).set_reponame(reponame)
+        repo.set_sources(sources)
+        add_repository(username,reponame, repo)
+
+        # 상태정보 저장 - 성공
+        save_status(username,reponame, WorkStatus.CRAWLING_SUCCESS)
     except Exception as e:
-        print(e)
-        status = save_status(username,reponame,WorkStatus.CRAWLING_FAIL)
-        return status
+        print("exception", e)
+        # 상태정보 저장 - 실패
+        save_status(username,reponame, WorkStatus.CRAWLING_FAIL)
 
 def mock_ai_start(background_tasks: BackgroundTasks, username: str, reponame: str):
     """
@@ -127,15 +118,3 @@ def mock_ai_service(username: str, reponame: str):
         add_repository(username,reponame, repo)
 
 
-# utils
-REPO_URL_PATTERN = r'https?://github.com/[a-zA-Z0-9]+/[a-zA-Z0-9_-]+'
-REPO_NAME_PATTERN = r'github.com/([a-zA-Z0-9-]+)/([a-zA-Z0-9-]+)'
-
-def url_checker(url: str):
-    """
-    url이 github url인가 체크
-    """
-    if re.match(REPO_URL_PATTERN, url):
-        return re.findall(REPO_NAME_PATTERN, url)[0]
-    else:
-        return None
