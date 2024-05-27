@@ -61,7 +61,7 @@ def update_repository_schema(updateRepository: RepositorySchema, db: Session):
     return None
 
 @update_repository.register(Repository)
-def update_repository_model(updateRepository: Repository, db: Session, rid: int):
+def update_repository_model(updateRepository: Repository, db: Session):
     db_repository = get_repository(updateRepository.rid, db=db)
     if db_repository:
         for key, value in vars(updateRepository).items():

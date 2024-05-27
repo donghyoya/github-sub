@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from .model import SourceCode
-from .schema import SourceCodeSchema
+from .schema import SourceCodeSchema, SourceCodeReadSchema
 from functools import singledispatch
 
 def get_source_code(db: Session, sid: int):
@@ -47,3 +47,7 @@ def _(source_code: SourceCode, db: Session):
     db.commit()
     db.refresh(source_code)
     return source_code
+
+def get_source_codes_by_repository_id(db: Session, repository_id: int):
+    sources = db.query(SourceCode).filter(SourceCode.rid == repository_id).all()
+    return [SourceCodeReadSchema.model_validate(sources) for source in sources]

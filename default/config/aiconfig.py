@@ -5,6 +5,7 @@ from typing import ClassVar
 import os
 
 class AiConfig(BaseSettings):
+
     openai_api_key: str = os.getenv("OPEN_API_KEY")
     model: str = "gpt-3.5-turbo"
     messages: list = []

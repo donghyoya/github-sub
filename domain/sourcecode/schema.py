@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 
 
@@ -12,3 +12,15 @@ class SourceCodeSchema(BaseModel):
 
     class Config:
         from_attributes = True
+class SourceCodeReadSchema(BaseModel):
+    sid: int
+    sourceName: str
+    sourceCode: str
+    path: str
+    url: str
+    language: str
+    rid: int
+    
+
+    def config() -> ConfigDict:
+        return ConfigDict(from_attributes=True)

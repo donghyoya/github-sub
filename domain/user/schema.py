@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 
 class GithubUserSchema(BaseModel):
@@ -20,15 +20,14 @@ class CreateUserSchema(GithubUserSchema):
     following: int
 
 class GithubUserReadSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     uid: int
     username: str
     site: str
     connectCnt: int
     follower: int
     following: int
-
-    class Config:
-        orm_mode = True
 
 # Update용 스키마
 class GithubUserUpdateSchema(BaseModel):
