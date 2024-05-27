@@ -12,4 +12,12 @@ class AiResultSchema(BaseModel):
 class AiSettingSchema(BaseModel):
 
     model: Optional[str] = Field(None, example="turbo3.5")
-    answer: Optional[str] = Field(None, "blabla")
+    answer: Optional[str] = Field(None, examples="blabla")
+
+class AiResultReadSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    aid: int
+    model: str
+    answer: str
+    score: int
+    rid: int

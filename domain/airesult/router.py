@@ -27,14 +27,14 @@ def get_redis_db():
     return get_redis
 
 
-@router.post("/chat")
-async def perform_text_completion(prompt: str, ai_config: AiConfig = Depends(get_ai)):
+@router.post("/chat", response_model=schema.AiResultReadSchema)
+async def perform_text_completion(prompt: str, ai_config: AiConfig = Depends(get_ai), db: Session = Depends(get_db)):
     try:
         completion = ai_config.chat(prompt=prompt)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     ai_setting = schema.AiSettingSchema(model=ai_config.output_model, answer=completion)
-    service.insertOrUpdateAi(airesult=ai_setting, rid=1, db=dbconfig)
+    ai_result =service.insertOrUpdateAi(airesult=ai_setting, rid=1, db=db)
     return {"result": completion}
 
 @router.post("/airesults/",response_model=schema.AiResultSchema, 
