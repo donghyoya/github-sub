@@ -38,17 +38,7 @@ async def start_crawling(url:str, background_tasks: BackgroundTasks, db: Session
     if repo is not None:
         repository = crawlerService.service_start(username=repo[0], reponame=repo[1], 
                                                    url=url, background_tasks=background_tasks, 
-                                                   db=Depends(get_db))
+                                                   db=db)
 
-# if __name__ == "__main__":
-#     driver = get_crawling_driver()
-#     crawler = GitCrawler(driver)
-#     # url = ""
-#     url = "https://github.com/donghyoya/github-sub"
-#     crawler.start_crawl(url, ["py"])
-#     src_files = crawler.get_src_files()
-#     crawler.close()
-#     if src_files is not None:
-#         for src in src_files:
-#             print(src.title)
-#     # src_f
+        return repository
+    return {"error": "Invalid repository URL"}

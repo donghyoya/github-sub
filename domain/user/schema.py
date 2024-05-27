@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 class GithubUserSchema(BaseModel):
+    uid: Optional[int] = Field(None, description="")
     username: Optional[str] = Field(None, examples="testusername")
     site: Optional[str] = Field(None, examples="https://github/donghyoya")
     connectCnt: Optional[int] = Field(None, examples=1)
@@ -18,3 +19,21 @@ class CreateUserSchema(GithubUserSchema):
     follower: int
     following: int
 
+class GithubUserReadSchema(BaseModel):
+    uid: int
+    username: str
+    site: str
+    connectCnt: int
+    follower: int
+    following: int
+
+    class Config:
+        orm_mode = True
+
+# Update용 스키마
+class GithubUserUpdateSchema(BaseModel):
+    username: Optional[str] = Field(None, example="updatedusername")
+    site: Optional[str] = Field(None, example="https://github.com/updateddonghyoya")
+    connectCnt: Optional[int] = Field(None, example=2)
+    follower: Optional[int] = Field(None, example=2)
+    following: Optional[int] = Field(None, example=2)

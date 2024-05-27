@@ -15,7 +15,8 @@ from domain.sourcecode.model import SourceCode
 from domain.sourcecode import service as SourceCodeService
 
 
-def service_start(username: str, reponame: str, url: str, background_tasks: BackgroundTasks , db: Session):
+def service_start(username: str, reponame: str, url: str, 
+                  background_tasks: BackgroundTasks , db: Session):
     try:
         status = load_status(username,reponame)
         if not status.needCrawling():
@@ -38,6 +39,9 @@ def start_crawling(username: str, reponame: str, url: str, db: Session):
     if gitUser is None:
         gitUser = GithubUser(username=username, site=url, connectCnt=1, follower=0, following=0)
         gitUser = GithubUserService.create_user(gitUser, db)
+    else:
+        gitUser.connectCnt += 1
+        GithubUserService.update_user(gitUser, db)
 
     # 이제 gitUser는 반드시 유효한 객체임을 보장
     repository = RepositoryService.get_repository_by_name_and_guid(db, reponame, gitUser.uid)
@@ -45,11 +49,16 @@ def start_crawling(username: str, reponame: str, url: str, db: Session):
     if repository is None:
         repository = Repository(connectCnt=1, repoName=reponame, guid=gitUser.uid, language="")
         repository = RepositoryService.create_repository(repository, db)
+    else:
+        repository.connectCnt += 1
+        RepositoryService.update_repository(repository, db)
 
     sources = source_crawling(url, conv2orm)
     for source in sources:
         source.rid = repository.rid
         SourceCodeService.create_source_code(source, db)
+    
+    return sources
 
         
 def source_crawling(url: str, result_converter):

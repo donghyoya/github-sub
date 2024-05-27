@@ -3,6 +3,10 @@ from functools import singledispatch
 from sqlalchemy import or_
 from .model import GithubUser
 from .schema import GithubUserSchema, CreateUserSchema
+"""
+pydantic 으로 받아온 데이터는 api를 통해서 받아오는 경우
+내부에서 동작할때는 sqlalchemy로 하는게 훨씬 효과적
+"""
 
 def get_user(db: Session, user_id: int):
     return db.query(GithubUser).filter(GithubUser.uid == user_id).first()
@@ -41,27 +45,27 @@ def get_user_by_username(db: Session, username: str) -> GithubUser:
     return db.query(GithubUser).filter(GithubUser.username == username).first()
 
 @singledispatch
-def update_user(user, db: Session, user_id: int) -> GithubUser:
+def update_user(user, user_id: int, db: Session) -> GithubUser:
     raise NotImplementedError("Unsupported type")
 
-@update_user.register(CreateUserSchema)
-def _(user: CreateUserSchema, db: Session, user_id: int, ):
-    db_user = get_user(db, user_id)
+@update_user.register(GithubUserSchema)
+def _(user: GithubUserSchema, db: Session):
+    db_user = get_user(db, user.uid)
     if not db_user:
         return None
     for var, value in vars(user).items():
-        setattr(db_user, var, value) if value else None
+        setattr(user, var, value) if value else None
     db.commit()
-    return db_user
+    return user
 
 @update_user.register(GithubUser)
-def _(user: GithubUser, db: Session, user_id: int):
-    db_user = db.query(GithubUser).filter(GithubUser.uid == user_id).first()
+def _(user: GithubUser, db: Session):
+    db_user = db.query(GithubUser).filter(GithubUser.uid == user.uid).first()
     if not db_user:
         return None
     # Assuming GithubUser model object is fully prepared for update
     for key, value in vars(user).items():
         if value is not None:
-            setattr(db_user, key, value)
+            setattr(user, key, value)
     db.commit()
-    return db_user
+    return user
