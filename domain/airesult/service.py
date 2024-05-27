@@ -29,7 +29,20 @@ def insertOrUpdateAi(airesult: AiSettingSchema, rid:int, db: Session):
 def create_ai_result(ai_result, db: Session):
     raise NotImplementedError("Unsupported type")
 
+@create_ai_result.register(AiResultSchema)
+def _(ai_result: AiResultSchema, db: Session):
+    db_ai_result = AiResult(**ai_result.model_dump())
+    db.add(db_ai_result)
+    db.commit()
+    db.refresh(db_ai_result)
+    return db_ai_result
 
+@create_ai_result.register(AiResult)
+def _(ai_result: AiResult, db: Session):
+    db.add(ai_result)
+    db.commit()
+    db.refresh(ai_result)
+    return ai_result
 
 def get_ai_result(db: Session, aid: int):
     return db.query(AiResult).filter(AiResult.aid == aid).first()
