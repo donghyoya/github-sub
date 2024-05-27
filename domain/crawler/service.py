@@ -37,7 +37,6 @@ def start_crawling(username: str, reponame: str, url: str, db: Session):
         # gitUser가 None인 경우 새로운 사용자를 생성
     if gitUser is None:
         gitUser = GithubUser(username=username, site=url, connectCnt=1, follower=0, following=0)
-        print("fornt type: ",type(gitUser))
         gitUser = GithubUserService.create_user(gitUser, db)
 
     # 이제 gitUser는 반드시 유효한 객체임을 보장
@@ -50,7 +49,7 @@ def start_crawling(username: str, reponame: str, url: str, db: Session):
     sources = source_crawling(url, conv2orm)
     for source in sources:
         source.rid = repository.rid
-        dbsourc = SourceCodeService.create_source_code(source, db)
+        SourceCodeService.create_source_code(source, db)
 
         
 def source_crawling(url: str, result_converter):
