@@ -49,7 +49,8 @@ async def start_crawling(url:str, background_tasks: BackgroundTasks, db: Session
     repo = url_checker(url)
     if repo is not None:
         repository = crawlerService.service_start(username=repo[0], reponame=repo[1], 
-                                                   url=url, background_tasks=background_tasks, db=Depends(get_db))
+                                                   url=url, background_tasks=background_tasks, 
+                                                   db=Depends(get_db))
 
 # if __name__ == "__main__":
 #     driver = get_crawling_driver()

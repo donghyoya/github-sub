@@ -20,15 +20,7 @@ from domain.repository.model import Repository
 from domain.repository import service as RepositoryService
 from domain.sourcecode.model import SourceCode
 from domain.sourcecode import service as SourceCodeService
-
-
-@contextmanager
-def get_db_context():
-    try:
-        db = dbconfig.SessionLocal()
-        yield db
-    finally:
-        db.close()
+from domain.frontend.status_service import WorkStatus, load_status, save_status, RepositoryWorkingStatus
 
 
 def get_row_repository(username, reponame):
@@ -71,49 +63,30 @@ def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame:
 
 def mock_crawl_service(username: str, reponame: str, url: str):
     """
-    임시로 만든 크롤링 작업 시작 서비스
-    크롤러 도메인을 사용하여 크롤링 작업을 시작한다
-    상태정보를 변경한다
+        요청한 username/reponame을 바탕으로 상태정보를 추출한다.
+        상태정보가 없거나 실패했다면 크롤링을 재시작할 것
+        상태정보가 있다면 상태정보를 반환한다
     """
-    with get_db_context() as session:
-        gitUser = GithubUserService.get_user_by_username(session, username)
-        
-        # gitUser가 None인 경우 새로운 사용자를 생성
-        if gitUser is None:
-            gitUser = GithubUser(username=username, site=url, connectCnt=1, follower=0, following=0)
-            print("fornt type: ",type(gitUser))
-            gitUser = GithubUserService.create_user(gitUser, session)
-
-        # 이제 gitUser는 반드시 유효한 객체임을 보장
-        repository = RepositoryService.get_repository_by_name_and_guid(session, reponame, gitUser.uid)
-        
-        if repository is None:
-            repository = Repository(connectCnt=1, repoName=reponame, guid=gitUser.uid, language="")
-            repository = RepositoryService.create_repository(repository, session)
-
-        repo = VMRepository().set_status("WORKING").set_username(username).set_reponame(reponame)
-        try:
-            sources = source_crawling(url, conv2orm)
-            for source in sources:
-                source.rid = repository.rid
-                dbsourc = SourceCodeService.create_source_code(source, session)
-                
-            repo.set_sources(sources)
-            repo.set_status("CRAWLING_COMPLETE")
-            add_repository(username, reponame, repo)
-        except Exception as e:
-            print("exception", e)
-            repo.set_status("FAIL")
-            add_repository(username, reponame, repo)
+    try:
+        status = load_status(username,reponame)
+        if not status.needCrawling():
+            # 상태정보가 있으므로 상태정보를 반환한다
+            return status
+        else:
+            # 상태정보가 없거나 실패했다면 크롤링을 재시작할 것
+            status = save_status(username,reponame,WorkStatus.CRAWLING_NOW)
+            background_tasks.add_task(mock_crawl_service, username, reponame, url)
+            return status
+    except Exception as e:
+        print(e)
+        status = save_status(username,reponame,WorkStatus.CRAWLING_FAIL)
+        return status
 
 def mock_ai_start(background_tasks: BackgroundTasks, username: str, reponame: str):
     """
         상태정보를 확인하고 ai 작업을 시작한다.
         상태정보가 '크롤링 완료'인 경우에만 AI작업을 시작한다
     """
-
-    print("username:" ,username)
-    print("reponame: ",reponame)
     try:
         repo = find_repository(username,reponame)
         if repo is not None and repo['status'] == "CRAWLING_COMPLETE":
