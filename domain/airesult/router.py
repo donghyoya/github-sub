@@ -3,8 +3,11 @@ from fastapi import APIRouter, Depends, HTTPException, \
 from . import service, schema
 from sqlalchemy.orm import Session
 from typing import List
+from redis import Redis
+
 from default.config import dbconfig
 from default.config.aiconfig import AiConfig
+from default.config.redisdbconfig import get_redis
 
 router = APIRouter(
     tags=["airesult"]
@@ -20,10 +23,18 @@ def get_db():
 def get_ai():
     return AiConfig.get_instance()  
 
+def get_redis_db():
+    return get_redis
+
 
 @router.post("/chat")
 async def perform_text_completion(prompt: str, ai_config: AiConfig = Depends(get_ai)):
-    completion = ai_config.chat(prompt=prompt)
+    try:
+        completion = ai_config.chat(prompt=prompt)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    ai_setting = schema.AiSettingSchema(model=ai_config.output_model, answer=completion)
+    service.insertOrUpdateAi(airesult=ai_setting, rid=1, db=dbconfig)
     return {"result": completion}
 
 @router.post("/airesults/",response_model=schema.AiResultSchema, 

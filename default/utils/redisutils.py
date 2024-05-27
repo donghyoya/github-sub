@@ -12,6 +12,7 @@ class WorkStatus(Enum):
     AI_API_SUCCESS = "AI_API_SUCCESS"
     AI_API_FAIL = "AI_API_FAIL"
     EXCEPTION = "EXCEPTION"
+    REPOSITORYID = 0
 
     def needCrawling(self):
         """
