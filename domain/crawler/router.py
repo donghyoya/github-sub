@@ -3,12 +3,13 @@ from fastapi import APIRouter, BackgroundTasks, Query, \
 from typing import List
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
+import re
 
-from default.config.crawlerconfig import get_crawling_driver
 from default.config import dbconfig
 
-
-from domain.crawler.crawler import GitCrawler
+from domain.crawler.crawler import gitCrawler
+from default.config.crawlerconfig import get_crawling_driver
+from domain.crawler import service as crawlerService
 
 load_dotenv('.env')
 
@@ -26,7 +27,7 @@ def get_db():
 def crawl_git_repository(background_tasks: BackgroundTasks, url: str, extensions: list):
     try:
         driver = get_crawling_driver()
-        crawler = GitCrawler(driver)
+        crawler = gitCrawler(driver)
         crawler.start_crawl(url, extensions)
         src_files = crawler.get_src_files()
         crawler.close()
@@ -45,6 +46,9 @@ async def perform_crawl(background_tasks: BackgroundTasks, url: str, extensions:
 
 @router.get("/crawling")
 async def start_crawling(url:str , db: Session = Depends(get_db)):
+    repo = url_checker(url)
+    if repo is not None:
+        repository = crawlerService.start_crawling()
 
 # if __name__ == "__main__":
 #     driver = get_crawling_driver()
@@ -58,3 +62,16 @@ async def start_crawling(url:str , db: Session = Depends(get_db)):
 #         for src in src_files:
 #             print(src.title)
 #     # src_f
+
+# utils
+REPO_URL_PATTERN = r'https?://github.com/[a-zA-Z0-9]+/[a-zA-Z0-9_-]+'
+REPO_NAME_PATTERN = r'github.com/([a-zA-Z0-9-]+)/([a-zA-Z0-9-]+)'
+
+def url_checker(url: str):
+    """
+    url이 github url인가 체크
+    """
+    if re.match(REPO_URL_PATTERN, url):
+        return re.findall(REPO_NAME_PATTERN, url)[0]
+    else:
+        return None
