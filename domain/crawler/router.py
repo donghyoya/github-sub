@@ -45,10 +45,11 @@ async def perform_crawl(background_tasks: BackgroundTasks, url: str, extensions:
     return {"message": "Crawling started", "url": url, "extensions": extensions}
 
 @router.get("/crawling")
-async def start_crawling(url:str , db: Session = Depends(get_db)):
+async def start_crawling(url:str, background_tasks: BackgroundTasks, db: Session = Depends(get_db), ):
     repo = url_checker(url)
     if repo is not None:
-        repository = crawlerService.start_crawling()
+        repository = crawlerService.service_start(username=repo[0], reponame=repo[1], 
+                                                   url=url, background_tasks=background_tasks, db=Depends(get_db))
 
 # if __name__ == "__main__":
 #     driver = get_crawling_driver()

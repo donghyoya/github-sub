@@ -10,7 +10,7 @@ from default.config import dbconfig
 # from domain.crawler.converter import convert_to_vm
 
 from domain.crawler.OrmConverter import conv2orm
-from domain.crawler.service import git_crawling
+from domain.crawler.service import source_crawling
 from domain.frontend.mock_repository import add_repository, find_repository
 from domain.frontend.view_model import VMRepository, VMSourceCode
 
@@ -93,7 +93,7 @@ def mock_crawl_service(username: str, reponame: str, url: str):
 
         repo = VMRepository().set_status("WORKING").set_username(username).set_reponame(reponame)
         try:
-            sources = git_crawling(url, conv2orm)
+            sources = source_crawling(url, conv2orm)
             for source in sources:
                 source.rid = repository.rid
                 dbsourc = SourceCodeService.create_source_code(source, session)
