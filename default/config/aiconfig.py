@@ -15,14 +15,6 @@ class AiConfig(BaseSettings):
     _instance = None
     client: ClassVar[openai.OpenAI] = None
 
-    def __init__(self, **values):
-        super().__init__(**values)
-        if not AiConfig.client:
-            # API 키를 클라이언트에 설정
-            openai.api_key = self.openai_api_key
-            # openai.Completion 대신 기본 openai 클라이언트 사용
-            AiConfig.client = openai
-
 
     @classmethod
     def get_instance(cls):
