@@ -60,8 +60,8 @@ def get_ai_result(db: Session, aid: int):
 def update_ai_result(updates, db: Session):
     raise NotImplementedError("Unsupported type")
 
-@update_ai_result.register(AiResultReadSchema)
-def _(updates: AiResultReadSchema, db: Session):
+@update_ai_result.register(AiResultBaseSchema)
+def _(updates: AiResultBaseSchema, db: Session):
     db_ai_result = db.query(AiResult).filter(AiResult.aid == updates.aid).first()
     if db_ai_result:
         for var, value in updates.dict().items():

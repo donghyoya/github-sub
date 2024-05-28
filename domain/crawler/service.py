@@ -1,12 +1,12 @@
-from fastapi import BackgroundTasks
+from fastapi import BackgroundTasks, HTTPException
 from sqlalchemy.orm import Session
-
 
 from default.config.crawlerconfig import get_crawling_driver
 from default.utils.redisutils import WorkStatus, load_status, save_status, RepositoryWorkingStatus
 
-from domain.crawler.crawler import GitCrawler
-from domain.crawler.OrmConverter import conv2orm
+from .crawler import GitCrawler
+from .OrmConverter import conv2orm
+from .schema import CrawlerBaseSchema
 from domain.user.model import GithubUser
 from domain.user import service as GithubUserService
 from domain.repository.model import Repository
@@ -16,7 +16,7 @@ from domain.sourcecode import service as SourceCodeService
 
 
 def service_start(username: str, reponame: str, url: str, 
-                  background_tasks: BackgroundTasks , db: Session):
+                  background_tasks: BackgroundTasks , db: Session)->CrawlerBaseSchema:
     
     gitUser = GithubUserService.get_user_by_username(db, username)
         
@@ -37,21 +37,23 @@ def service_start(username: str, reponame: str, url: str,
     else:
         repository.connectCnt += 1
         RepositoryService.update_repository(repository, db)
+    
+    rtSchema = CrawlerBaseSchema(username=gitUser.username, reponame=repository.repoName)
 
     try:
         status = load_status(username,reponame)
         if not status.needCrawling():
             # 상태정보가 있으므로 상태정보를 반환한다
-            return status
+            return rtSchema
         else:
             # 상태정보가 없거나 실패했다면 크롤링을 재시작할 것
             status = save_status(username,reponame,repository.rid,WorkStatus.CRAWLING_NOW)
             background_tasks.add_task(start_crawling, repository.rid, url, db)
-            return status
+            return rtSchema
     except Exception as e:
         print(e)
         status = save_status(username,reponame,repository.rid,WorkStatus.CRAWLING_FAIL)
-        return status
+        raise HTTPException(status_code=500, detail="An error occurred while starting the crawling process.")
 
 def start_crawling(rid: int, url: str, db: Session):
     
