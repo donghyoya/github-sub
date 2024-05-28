@@ -11,10 +11,10 @@ from default.config.redisdbconfig import get_redis
 
 from domain.repository.model import Repository
 from domain.repository.service import get_repository
+from domain.crawler.schema import CrawlerBaseSchema
 
 
-def insertOrUpdateAi(airesult: AiSettingSchema, db: Session) -> AiResultBaseSchema:
-    
+def insertOrUpdateAi(airesult: AiSettingSchema, crawler: CrawlerBaseSchema, db: Session) -> AiResultBaseSchema:
     
 
     redis_data = get_redis().get("")

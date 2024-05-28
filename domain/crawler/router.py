@@ -33,11 +33,14 @@ async def perform_crawl(background_tasks: BackgroundTasks, url: str, extensions:
     return {"message": "Crawling started", "url": url, "extensions": extensions}
 
 @router.get("/crawling")
-async def start_crawling(url:str, background_tasks: BackgroundTasks, db: Session = Depends(get_db), ):
+async def start_crawling(url:str, background_tasks: BackgroundTasks, request: Request, db: Session = Depends(get_db)):
     repo = url_checker(url)
     if repo is not None:
-        repository = crawlerService.service_start(username=repo[0], reponame=repo[1], 
+        status, value = crawlerService.service_start(username=repo[0], reponame=repo[1], 
                                                    url=url, background_tasks=background_tasks, 
                                                    db=db)
-        return repository
+        session_data = f'username:{value.username} reponame:{value.reponame}'
+        request.session['crawler'] = session_data
+
+        return status
     return {"error": "Invalid repository URL"}

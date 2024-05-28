@@ -9,6 +9,8 @@ from default.config import dbconfig
 from default.config.aiconfig import AiConfig
 from default.config.redisdbconfig import get_redis
 
+from domain.crawler.schema import CrawlerBaseSchema
+
 router = APIRouter(
     tags=["airesult"]
 )
@@ -28,13 +30,21 @@ def get_redis_db():
 
 
 @router.post("/chat", response_model=schema.AiResultBaseSchema)
-async def perform_text_completion(prompt: str, ai_config: AiConfig = Depends(get_ai), db: Session = Depends(get_db)):
+async def perform_text_completion(prompt: str, request: Request, ai_config: AiConfig = Depends(get_ai), db: Session = Depends(get_db)):
+    
+    session_data = request.session.get('crawler')
+
+    if session_data:
+        data_parts = session_data.split()
+        username = data_parts[0].split(':')[1]
+        reponame = data_parts[1].split(':')[1]
+        cralwer = CrawlerBaseSchema(username=username, reponame=reponame)
     try:
         completion = ai_config.chat(prompt=prompt)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     ai_setting = schema.AiSettingSchema(model=ai_config.output_model, answer=completion)
-    ai_result =service.insertOrUpdateAi(airesult=ai_setting, db=db)
+    ai_result =service.insertOrUpdateAi(airesult=ai_setting, crawler=cralwer, db=db)
     return ai_result
 
 @router.post("/airesults/",response_model=schema.AiResultSchema, 

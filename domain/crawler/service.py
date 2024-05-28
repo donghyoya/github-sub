@@ -1,4 +1,4 @@
-from fastapi import BackgroundTasks, HTTPException
+from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 
 from default.config.crawlerconfig import get_crawling_driver
@@ -44,16 +44,16 @@ def service_start(username: str, reponame: str, url: str,
         status = load_status(username,reponame)
         if not status.needCrawling():
             # 상태정보가 있으므로 상태정보를 반환한다
-            return rtSchema
+            return status, rtSchema
         else:
             # 상태정보가 없거나 실패했다면 크롤링을 재시작할 것
             status = save_status(username,reponame,repository.rid,WorkStatus.CRAWLING_NOW)
             background_tasks.add_task(start_crawling, repository.rid, url, db)
-            return rtSchema
+            return status, rtSchema
     except Exception as e:
         print(e)
         status = save_status(username,reponame,repository.rid,WorkStatus.CRAWLING_FAIL)
-        raise HTTPException(status_code=500, detail="An error occurred while starting the crawling process.")
+        return status, rtSchema
 
 def start_crawling(rid: int, url: str, db: Session):
     
