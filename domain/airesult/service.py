@@ -8,6 +8,7 @@ from .schema import AiResultSchema, AiSettingSchema, \
     AiResultBaseSchema, AiResultBaseSchema
 
 from default.config.redisdbconfig import get_redis
+from default.utils.redisutils import RepositoryWorkingStatus
 
 from domain.repository.model import Repository
 from domain.repository.service import get_repository
@@ -16,15 +17,18 @@ from domain.crawler.schema import CrawlerBaseSchema
 
 def insertOrUpdateAi(airesult: AiSettingSchema, crawler: CrawlerBaseSchema, db: Session) -> AiResultBaseSchema:
     
-    redis_key = f"{crawler.username}:{crawler.reponame}:status"
-    redis_data = get_redis().get(redis_key)
+    redis_data = RepositoryWorkingStatus.from_redis(crawler.username, crawler.reponame)
     
+    if not redis_data:
+        raise HTTPException(status_code=404, detail="Repository status not found in Redis")
+
+    print("redis_data rid: ",redis_data.get_repoid())
+
     repository = get_repository(rid=redis_data.get_repoid(),db=db)
     ai_result_insert_db = AiResult(model=airesult.model, answer=airesult.answer,
                                    score=50, rid=repository.rid, repository=repository)
     ai_resultdb = create_ai_result(ai_result_insert_db, db)
-    print("ai_reusltdb: ",ai_resultdb)
-    ai_resultdb.print()
+
     return AiResultBaseSchema.model_validate(ai_resultdb)
     
 

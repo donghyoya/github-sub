@@ -1,4 +1,5 @@
 from enum import Enum
+import json
 
 from default.config.redisdbconfig import get_redis
 
@@ -12,7 +13,6 @@ class WorkStatus(Enum):
     AI_API_SUCCESS = "AI_API_SUCCESS"
     AI_API_FAIL = "AI_API_FAIL"
     EXCEPTION = "EXCEPTION"
-    REPOSITORYID = 0
 
     def needCrawling(self):
         """
@@ -52,10 +52,9 @@ class RepositoryWorkingStatus:
     def set_repoid(self, rid: int):
         self.repoid = rid
         return self
-    
     def get_repoid(self):
         return self.repoid
-    
+
     def get_cache_key(self):
         return f"{self.usernamae}:{self.reponame}:status"
 
@@ -75,27 +74,43 @@ class RepositoryWorkingStatus:
     def needAiApi(self):
         return self.status in [WorkStatus.AI_API_FAIL, WorkStatus.CRAWLING_SUCCESS]
 
-def save_status(username, reponame, rid, status:WorkStatus):
+    def to_json(self):
+        data = self.__dict__.copy()
+        data['status'] = self.status.value
+        return json.dumps(data)
+
+    @classmethod
+    def from_json(cls, json_str):
+        data = json.loads(json_str)
+        obj = cls()
+        obj.username = data.get('username')
+        obj.reponame = data.get('reponame')
+        obj.status = WorkStatus.from_string(data.get('status'))
+        obj.repoid = data.get('repoid')
+        return obj
+
+    @classmethod
+    def from_redis(cls, username: str, reponame: str):
+        db = get_redis()
+        key = f"{username}:{reponame}:status"
+        value = db.get(key)
+        if value is None:
+            return cls().set_usernamae(username).set_reponame(reponame).set_status(WorkStatus.NONE)
+        return cls.from_json(value.decode('utf-8'))
+
+def save_status(username, reponame, rid, status: WorkStatus):
     db = get_redis()
     key = f"{username}:{reponame}:status"
-    value = status.value.encode('utf-8')
+    repo_status = RepositoryWorkingStatus().set_usernamae(username).set_reponame(reponame).set_repoid(rid).set_status(status)
+    value = repo_status.to_json()
     expire_seconds = 60*60
     db.setex(
         key,
         expire_seconds,
         value
     )
-    status = RepositoryWorkingStatus().set_usernamae(username).set_reponame(reponame).set_repoid(rid).set_status(status)
-    return status
+    return repo_status
 
 
-def load_status(username, reponame)->RepositoryWorkingStatus:
-    db = get_redis()
-    key = f"{username}:{reponame}:status"
-    value = db.get(key)
-    status = RepositoryWorkingStatus().set_usernamae(username).set_reponame(reponame)
-    if value is None:
-        status.set_status(WorkStatus.NONE)
-    else:
-        status.set_cache_value(value)
-    return status
+def load_status(username, reponame) -> RepositoryWorkingStatus:
+    return RepositoryWorkingStatus.from_redis(username, reponame)
