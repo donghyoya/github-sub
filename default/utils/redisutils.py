@@ -52,7 +52,10 @@ class RepositoryWorkingStatus:
     def set_repoid(self, rid: int):
         self.repoid = rid
         return self
-
+    
+    def get_repoid(self):
+        return self.repoid
+    
     def get_cache_key(self):
         return f"{self.usernamae}:{self.reponame}:status"
 

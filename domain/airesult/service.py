@@ -16,12 +16,12 @@ from domain.crawler.schema import CrawlerBaseSchema
 
 def insertOrUpdateAi(airesult: AiSettingSchema, crawler: CrawlerBaseSchema, db: Session) -> AiResultBaseSchema:
     
-
-    redis_data = get_redis().get("")
+    redis_key = f"{crawler.username}:{crawler.reponame}:status"
+    redis_data = get_redis().get(redis_key)
     
-    repository = get_repository(rid=rid,db=db)
+    repository = get_repository(rid=redis_data.get_repoid(),db=db)
     ai_result_insert_db = AiResult(model=airesult.model, answer=airesult.answer,
-                                   score=50, rid=rid, repository=repository)
+                                   score=50, rid=repository.rid, repository=repository)
     ai_resultdb = create_ai_result(ai_result_insert_db, db)
     print("ai_reusltdb: ",ai_resultdb)
     ai_resultdb.print()

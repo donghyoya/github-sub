@@ -35,6 +35,7 @@ async def perform_crawl(background_tasks: BackgroundTasks, url: str, extensions:
 @router.get("/crawling")
 async def start_crawling(url:str, background_tasks: BackgroundTasks, request: Request, db: Session = Depends(get_db)):
     repo = url_checker(url)
+    request.session.clear()
     if repo is not None:
         status, value = crawlerService.service_start(username=repo[0], reponame=repo[1], 
                                                    url=url, background_tasks=background_tasks, 
