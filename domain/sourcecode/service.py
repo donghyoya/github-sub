@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from .model import SourceCode
 from .schema import SourceCodeSchema, SourceCodeReadSchema
+from typing import List, Optional
 from functools import singledispatch
 
 def get_source_code(db: Session, sid: int):
@@ -51,3 +52,32 @@ def _(source_code: SourceCode, db: Session):
 def get_source_codes_by_repository_id(db: Session, repository_id: int):
     sources = db.query(SourceCode).filter(SourceCode.rid == repository_id).all()
     return [SourceCodeReadSchema.model_validate(sources) for source in sources]
+
+# SourceCode 데이터중에 rid값을 가진 데이터가 있는지 없는지 확인
+def source_code_exists(rid: int, db: Session) -> bool:
+    return db.query(SourceCode).filter(SourceCode.rid == rid).first() is not None
+
+# 2. RID에 해당하는 모든 SourceCode 데이터를 가져오는 서비스
+def get_all_source_codes_by_rid(rid: int, db: Session) -> List[SourceCode]:
+    return db.query(SourceCode).filter(SourceCode.rid == rid).all()
+
+
+
+# 3. list[SourceCode]을 sourceName와 path를 통해 업데이트하거나 추가하는 서비스
+def add_or_update_source_codes(source_codes: List[SourceCode], db: Session):
+    for src in source_codes:
+        existing_source_code = db.query(SourceCode).filter(
+            and_(SourceCode.sourceName == src.sourceName, SourceCode.path == src.path)
+        ).first()
+
+        if existing_source_code:
+            # Update existing source code
+            existing_source_code.sourceCode = src.sourceCode
+            existing_source_code.url = src.url
+            existing_source_code.language = src.language
+            db.add(existing_source_code)
+        else:
+            # Add new source code
+            db.add(src)
+    
+    db.commit()
