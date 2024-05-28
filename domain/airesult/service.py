@@ -5,19 +5,20 @@ from functools import singledispatch
 
 from .model import AiResult
 from .schema import AiResultSchema, AiSettingSchema, \
-    AiResultReadSchema
+    AiResultReadSchema, AiResultBaseSchema
 
 from domain.repository.model import Repository
 from domain.repository.service import get_repository
 
 
-def insertOrUpdateAi(airesult: AiSettingSchema, rid:int, db: Session):
+def insertOrUpdateAi(airesult: AiSettingSchema, rid:int, db: Session) -> AiResultBaseSchema:
     repository = get_repository(rid=rid,db=db)
     ai_result_insert_db = AiResult(model=airesult.model, answer=airesult.answer,
                                    score=50, rid=rid, repository=repository)
-    update_ai_result(ai_result_insert_db, db)
-    
-    return AiResultReadSchema.model_dump(ai_result_insert_db)
+    ai_resultdb = create_ai_result(ai_result_insert_db, db)
+    print("ai_reusltdb: ",ai_resultdb)
+    ai_resultdb.print()
+    return AiResultBaseSchema.model_validate(ai_resultdb)
     
 
 '''

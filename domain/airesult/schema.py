@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict,\
+    StringConstraints
 from typing import Optional
+from typing_extensions import Annotated
 
 class AiResultSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -10,14 +12,16 @@ class AiResultSchema(BaseModel):
     rid: int
 
 class AiSettingSchema(BaseModel):
-
     model: Optional[str] = Field(None, example="turbo3.5")
-    answer: Optional[str] = Field(None, examples="blabla")
+    answer: Optional[str] = Field(None, example="blabla")
 
-class AiResultReadSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+class AiResultBaseSchema(BaseModel):
     aid: int
     model: str
     answer: str
     score: int
     rid: int
+
+    model_config = ConfigDict(from_attributes=True)
+    # class Config:
+    #     from_attributes=True
