@@ -35,6 +35,7 @@ class RepositoryWorkingStatus:
         self.username = None
         self.reponame = None
         self.status = None
+        self.repoid = None
 
     def set_usernamae(self, username: str):
         self.username = username
@@ -46,6 +47,10 @@ class RepositoryWorkingStatus:
 
     def set_status(self, status: WorkStatus):
         self.status = status
+        return self
+    
+    def set_repoid(self, rid: int):
+        self.repoid = rid
         return self
 
     def get_cache_key(self):
@@ -67,7 +72,7 @@ class RepositoryWorkingStatus:
     def needAiApi(self):
         return self.status in [WorkStatus.AI_API_FAIL, WorkStatus.CRAWLING_SUCCESS]
 
-def save_status(username, reponame, status:WorkStatus):
+def save_status(username, reponame, rid, status:WorkStatus):
     db = get_redis()
     key = f"{username}:{reponame}:status"
     value = status.value.encode('utf-8')
@@ -77,8 +82,9 @@ def save_status(username, reponame, status:WorkStatus):
         expire_seconds,
         value
     )
-    status = RepositoryWorkingStatus().set_usernamae(username).set_reponame(reponame).set_status(status)
+    status = RepositoryWorkingStatus().set_usernamae(username).set_reponame(reponame).set_repoid(rid).set_status(status)
     return status
+
 
 def load_status(username, reponame)->RepositoryWorkingStatus:
     db = get_redis()

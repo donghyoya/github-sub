@@ -17,22 +17,7 @@ from domain.sourcecode import service as SourceCodeService
 
 def service_start(username: str, reponame: str, url: str, 
                   background_tasks: BackgroundTasks , db: Session):
-    try:
-        status = load_status(username,reponame)
-        if not status.needCrawling():
-            # 상태정보가 있으므로 상태정보를 반환한다
-            return status
-        else:
-            # 상태정보가 없거나 실패했다면 크롤링을 재시작할 것
-            status = save_status(username,reponame,WorkStatus.CRAWLING_NOW)
-            background_tasks.add_task(start_crawling, username, reponame, url, db)
-            return status
-    except Exception as e:
-        print(e)
-        status = save_status(username,reponame,WorkStatus.CRAWLING_FAIL)
-        return status 
-
-def start_crawling(username: str, reponame: str, url: str, db: Session):
+    
     gitUser = GithubUserService.get_user_by_username(db, username)
         
         # gitUser가 None인 경우 새로운 사용자를 생성
@@ -53,9 +38,26 @@ def start_crawling(username: str, reponame: str, url: str, db: Session):
         repository.connectCnt += 1
         RepositoryService.update_repository(repository, db)
 
+    try:
+        status = load_status(username,reponame)
+        if not status.needCrawling():
+            # 상태정보가 있으므로 상태정보를 반환한다
+            return status
+        else:
+            # 상태정보가 없거나 실패했다면 크롤링을 재시작할 것
+            status = save_status(username,reponame,repository.rid,WorkStatus.CRAWLING_NOW)
+            background_tasks.add_task(start_crawling, repository.rid, url, db)
+            return status
+    except Exception as e:
+        print(e)
+        status = save_status(username,reponame,repository.rid,WorkStatus.CRAWLING_FAIL)
+        return status
+
+def start_crawling(rid: int, url: str, db: Session):
+    
     sources = source_crawling(url, conv2orm)
     for source in sources:
-        source.rid = repository.rid
+        source.rid = rid
         SourceCodeService.create_source_code(source, db)
     
     return sources

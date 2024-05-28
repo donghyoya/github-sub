@@ -1,5 +1,5 @@
 from fastapi import APIRouter, BackgroundTasks, Query, \
-    Depends
+    Depends, Request
 from typing import List
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
@@ -39,6 +39,5 @@ async def start_crawling(url:str, background_tasks: BackgroundTasks, db: Session
         repository = crawlerService.service_start(username=repo[0], reponame=repo[1], 
                                                    url=url, background_tasks=background_tasks, 
                                                    db=db)
-
         return repository
     return {"error": "Invalid repository URL"}

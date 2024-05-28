@@ -5,13 +5,20 @@ from functools import singledispatch
 
 from .model import AiResult
 from .schema import AiResultSchema, AiSettingSchema, \
-    AiResultReadSchema, AiResultBaseSchema
+    AiResultBaseSchema, AiResultBaseSchema
+
+from default.config.redisdbconfig import get_redis
 
 from domain.repository.model import Repository
 from domain.repository.service import get_repository
 
 
-def insertOrUpdateAi(airesult: AiSettingSchema, rid:int, db: Session) -> AiResultBaseSchema:
+def insertOrUpdateAi(airesult: AiSettingSchema, db: Session) -> AiResultBaseSchema:
+    
+    
+
+    redis_data = get_redis().get("")
+    
     repository = get_repository(rid=rid,db=db)
     ai_result_insert_db = AiResult(model=airesult.model, answer=airesult.answer,
                                    score=50, rid=rid, repository=repository)
