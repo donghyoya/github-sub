@@ -1,12 +1,13 @@
 from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
+from typing import List
 
 from default.config.crawlerconfig import get_crawling_driver
 from default.utils.redisutils import WorkStatus, load_status, save_status, RepositoryWorkingStatus
 
 from .crawler import GitCrawler
 from .OrmConverter import conv2orm
-from .schema import CrawlerBaseSchema
+from ...default.schema.cralwerschema import CrawlerBaseSchema
 from domain.user.model import GithubUser
 from domain.user import service as GithubUserService
 from domain.repository.model import Repository
@@ -55,14 +56,40 @@ def service_start(username: str, reponame: str, url: str,
         status = save_status(username,reponame,repository.rid,WorkStatus.CRAWLING_FAIL)
         return status, rtSchema
 
-def start_crawling(rid: int, url: str, db: Session):
+'''
+repository가 없는경우에 SourceCode 추가
+'''
+def start_add_crawling(rid: int, url: str, db: Session) -> List[SourceCode]:
     
     sources = source_crawling(url, conv2orm)
-    for source in sources:
-        source.rid = rid
-        SourceCodeService.create_source_code(source, db)
+
+    update_sources = SourceCodeService.add_source_codes(source_codes=sources,db=db)
     
-    return sources
+    return update_sources
+
+'''
+repository가 있는경우 SourceCode 업데이트 및 추가
+'''
+def start_update_crawling(rid: int, url: str, db: Session):
+
+    before_sources = SourceCodeService.get_all_source_codes_by_rid(rid=rid, db=db)
+
+    sources = source_crawling(url, conv2orm)
+
+    after_sources = SourceCodeService.add_or_update_source_codes(source_codes=sources, db=db)
+
+    # 리스트를 집합으로 변환하고
+    before_sids = {source.sid for source in before_sources}
+    after_sids = {source.sid for source in after_sources}
+
+    #변한 집합끼리 뺄셈 연산
+    missing_sids = list(before_sids - after_sids)
+
+    SourceCodeService.update_rmstate_for_missing_sids(missing_sids=missing_sids, db=db)
+
+    return after_sources
+
+
 
         
 def source_crawling(url: str, result_converter):

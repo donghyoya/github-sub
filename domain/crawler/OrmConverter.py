@@ -1,6 +1,7 @@
 from domain.sourcecode.model import SourceCode
+from typing import List
 
-def conv2orm(src_files) -> list[SourceCode]:
+def conv2orm(src_files) -> List[SourceCode]:
     sources = []
 
     for src in src_files:

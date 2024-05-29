@@ -9,7 +9,7 @@ from default.config import dbconfig
 from default.config.aiconfig import AiConfig
 from default.config.redisdbconfig import get_redis
 
-from domain.crawler.schema import CrawlerBaseSchema
+from default.schema.cralwerschema import CrawlerBaseSchema
 
 router = APIRouter(
     tags=["airesult"]

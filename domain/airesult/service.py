@@ -12,7 +12,7 @@ from default.utils.redisutils import RepositoryWorkingStatus
 
 from domain.repository.model import Repository
 from domain.repository.service import get_repository
-from domain.crawler.schema import CrawlerBaseSchema
+from default.schema.cralwerschema import CrawlerBaseSchema
 
 
 def insertOrUpdateAi(airesult: AiSettingSchema, crawler: CrawlerBaseSchema, db: Session) -> AiResultBaseSchema:
