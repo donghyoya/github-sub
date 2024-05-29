@@ -20,7 +20,7 @@ def get_db():
         db.close()
 
 @router.get("/getbyrid/{rid}",response_model=List[schema.SourceCodeReadSchema])
-def test_getbyrid(rid: int, request: Request, db: Session = Depends(get_db)):
+def test_getbyrid(request: Request, db: Session = Depends(get_db)):
 
     session_data = request.session.get('crawler')
 
@@ -31,4 +31,4 @@ def test_getbyrid(rid: int, request: Request, db: Session = Depends(get_db)):
         cralwer = CrawlerBaseSchema(username=username, reponame=reponame)
     
 
-    return service.get_source_codes_by_repository_id(repository_id=rid, db=db)
+    return service.get_source_codes_by_repository_id(cralwer, db=db)

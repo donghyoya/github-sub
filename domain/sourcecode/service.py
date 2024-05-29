@@ -1,9 +1,29 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from .model import SourceCode
 from .schema import SourceCodeSchema, SourceCodeReadSchema
 from typing import List, Optional
 from functools import singledispatch
+
+from default.utils.redisutils import RepositoryWorkingStatus
+from default.schema.cralwerschema import CrawlerBaseSchema
+
+
+def get_source_codes_by_repository_id(crawler: CrawlerBaseSchema, db: Session):
+
+    redis_data = RepositoryWorkingStatus.from_redis(crawler.username, crawler.reponame)
+    
+    if not redis_data:
+        raise HTTPException(status_code=404, detail="Repository status not found in Redis")
+
+    sources = db.query(SourceCode).filter(SourceCode.rid == redis_data.get_repoid()).all()
+    return [SourceCodeReadSchema.model_validate(sources) for source in sources]
+
+
+'''
+============crud===========
+'''
 
 def get_source_code(db: Session, sid: int):
     return db.query(SourceCode).filter(SourceCode.sid == sid).first()
@@ -48,10 +68,6 @@ def _(source_code: SourceCode, db: Session):
     db.commit()
     db.refresh(source_code)
     return source_code
-
-def get_source_codes_by_repository_id(db: Session, repository_id: int):
-    sources = db.query(SourceCode).filter(SourceCode.rid == repository_id).all()
-    return [SourceCodeReadSchema.model_validate(sources) for source in sources]
 
 # SourceCode 데이터중에 rid값을 가진 데이터가 있는지 없는지 확인
 def source_code_exists(rid: int, db: Session) -> bool:

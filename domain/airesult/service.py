@@ -7,10 +7,8 @@ from .model import AiResult
 from .schema import AiResultSchema, AiSettingSchema, \
     AiResultBaseSchema, AiResultBaseSchema
 
-from default.config.redisdbconfig import get_redis
 from default.utils.redisutils import RepositoryWorkingStatus
 
-from domain.repository.model import Repository
 from domain.repository.service import get_repository
 from default.schema.cralwerschema import CrawlerBaseSchema
 

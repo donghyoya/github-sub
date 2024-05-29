@@ -7,7 +7,7 @@ from default.utils.redisutils import WorkStatus, load_status, save_status, Repos
 
 from .crawler import GitCrawler
 from .OrmConverter import conv2orm
-from ...default.schema.cralwerschema import CrawlerBaseSchema
+from default.schema.cralwerschema import CrawlerBaseSchema
 from domain.user.model import GithubUser
 from domain.user import service as GithubUserService
 from domain.repository.model import Repository
