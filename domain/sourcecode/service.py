@@ -62,9 +62,10 @@ def get_all_source_codes_by_rid(rid: int, db: Session) -> List[SourceCode]:
     return db.query(SourceCode).filter(SourceCode.rid == rid).all()
 
 
-
 # 3. list[SourceCode]을 sourceName와 path를 통해 업데이트하거나 추가하는 서비스
-def add_or_update_source_codes(source_codes: List[SourceCode], db: Session):
+def add_or_update_source_codes(source_codes: List[SourceCode], db: Session) -> List[SourceCode]:
+    updated_or_added = []
+    
     for src in source_codes:
         existing_source_code = db.query(SourceCode).filter(
             and_(SourceCode.sourceName == src.sourceName, SourceCode.path == src.path)
@@ -76,8 +77,37 @@ def add_or_update_source_codes(source_codes: List[SourceCode], db: Session):
             existing_source_code.url = src.url
             existing_source_code.language = src.language
             db.add(existing_source_code)
+            updated_or_added.append(existing_source_code)
         else:
+            src.rmstate=True
             # Add new source code
             db.add(src)
+            updated_or_added.append(src)
     
+    db.commit()
+    return updated_or_added
+
+'''
+소스코드 db에 '적재'만하는 소스
+'''
+def add_source_codes(source_codes: List[SourceCode], db: Session) -> List[SourceCode]:
+    added = []
+
+    for src in source_codes:
+        src.rmstate = True
+        db.add(src)
+        added.append(src)
+    
+    db.commit()
+    return added
+
+'''
+없어진 소스코드 삭제(status를 False로 변환)
+'''
+def update_rmstate_for_missing_sids(missing_sids: List[int], db: Session):
+    if not missing_sids:
+        return
+    
+    # Update rmstate for SourceCode entries with sids in missing_sids
+    db.query(SourceCode).filter(SourceCode.sid.in_(missing_sids)).update({"rmstate": False}, synchronize_session=False)
     db.commit()
