@@ -9,6 +9,7 @@ from functools import singledispatch
 from default.utils.redisutils import RepositoryWorkingStatus
 from default.schema.cralwerschema import CrawlerBaseSchema
 
+from domain.repository.model import Repository
 
 def get_source_codes_by_repository_id(crawler: CrawlerBaseSchema, db: Session):
 
@@ -16,7 +17,9 @@ def get_source_codes_by_repository_id(crawler: CrawlerBaseSchema, db: Session):
     
     if not redis_data:
         raise HTTPException(status_code=404, detail="Repository status not found in Redis")
-
+    
+    print("redis_data rid: ",redis_data.get_repoid())
+    
     sources = db.query(SourceCode).filter(SourceCode.rid == redis_data.get_repoid()).all()
     return [SourceCodeReadSchema.model_validate(sources) for source in sources]
 
@@ -79,7 +82,7 @@ def get_all_source_codes_by_rid(rid: int, db: Session) -> List[SourceCode]:
 
 
 # 3. list[SourceCode]을 sourceName와 path를 통해 업데이트하거나 추가하는 서비스
-def add_or_update_source_codes(source_codes: List[SourceCode], db: Session) -> List[SourceCode]:
+def add_or_update_source_codes(source_codes: List[SourceCode],repository: Repository, db: Session) -> List[SourceCode]:
     updated_or_added = []
     
     for src in source_codes:
@@ -96,6 +99,8 @@ def add_or_update_source_codes(source_codes: List[SourceCode], db: Session) -> L
             updated_or_added.append(existing_source_code)
         else:
             src.rmstate=True
+            src.rid = repository.rid
+            src.repository = repository
             # Add new source code
             db.add(src)
             updated_or_added.append(src)
@@ -106,11 +111,13 @@ def add_or_update_source_codes(source_codes: List[SourceCode], db: Session) -> L
 '''
 소스코드 db에 '적재'만하는 소스
 '''
-def add_source_codes(source_codes: List[SourceCode], db: Session) -> List[SourceCode]:
+def add_source_codes(source_codes: List[SourceCode], repository: Repository, db: Session) -> List[SourceCode]:
     added = []
 
     for src in source_codes:
         src.rmstate = True
+        src.rid = repository.rid
+        src.repository = repository
         db.add(src)
         added.append(src)
     

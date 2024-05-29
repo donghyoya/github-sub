@@ -20,7 +20,6 @@ def insertOrUpdateAi(airesult: AiSettingSchema, crawler: CrawlerBaseSchema, db: 
     if not redis_data:
         raise HTTPException(status_code=404, detail="Repository status not found in Redis")
 
-    print("redis_data rid: ",redis_data.get_repoid())
 
     repository = get_repository(rid=redis_data.get_repoid(),db=db)
     ai_result_insert_db = AiResult(model=airesult.model, answer=airesult.answer,

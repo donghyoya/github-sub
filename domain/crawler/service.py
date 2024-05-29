@@ -55,9 +55,9 @@ def service_start(username: str, reponame: str, url: str,
             status = save_status(username,reponame,repository.rid,WorkStatus.CRAWLING_NOW)
 
             if(check_repository is False):
-                background_tasks.add_task(start_add_crawling, repository.rid, url, db)
+                background_tasks.add_task(start_add_crawling, repository, url, db)
             else:
-                background_tasks.add_task(start_update_crawling, repository.rid, url, db)
+                background_tasks.add_task(start_update_crawling, repository, url, db)
             
             return status, rtSchema
     except Exception as e:
@@ -68,24 +68,24 @@ def service_start(username: str, reponame: str, url: str,
 '''
 repository가 없는경우에 SourceCode 추가
 '''
-def start_add_crawling(rid: int, url: str, db: Session) -> List[SourceCode]:
+def start_add_crawling(repository: Repository, url: str, db: Session) -> List[SourceCode]:
     
     sources = source_crawling(url, conv2orm)
 
-    update_sources = SourceCodeService.add_source_codes(source_codes=sources,db=db)
+    update_sources = SourceCodeService.add_source_codes(source_codes=sources,repository=repository,db=db)
     
     return update_sources
 
 '''
 repository가 있는경우 SourceCode 업데이트 및 추가
 '''
-def start_update_crawling(rid: int, url: str, db: Session):
+def start_update_crawling(repository: Repository, url: str, db: Session):
 
-    before_sources = SourceCodeService.get_all_source_codes_by_rid(rid=rid, db=db)
+    before_sources = SourceCodeService.get_all_source_codes_by_rid(rid=repository.rid, db=db)
 
     sources = source_crawling(url, conv2orm)
 
-    after_sources = SourceCodeService.add_or_update_source_codes(source_codes=sources, db=db)
+    after_sources = SourceCodeService.add_or_update_source_codes(source_codes=sources, repository=repository, db=db)
 
     # 리스트를 집합으로 변환하고
     before_sids = {source.sid for source in before_sources}

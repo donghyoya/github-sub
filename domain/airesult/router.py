@@ -33,6 +33,7 @@ def get_redis_db():
 async def perform_text_completion(prompt: str, request: Request, ai_config: AiConfig = Depends(get_ai), db: Session = Depends(get_db)):
     
     session_data = request.session.get('crawler')
+    print(f"ai_result Session data: {session_data}")
 
     if session_data:
         data_parts = session_data.split()
