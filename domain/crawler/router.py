@@ -42,7 +42,7 @@ async def start_crawling(url:str, background_tasks: BackgroundTasks, request: Re
                                                    db=db)
         #CralwerBaseSchema
         session_data = f'username:{value.username} reponame:{value.reponame}'
-        print("cralwer router: ",session_data)
+        # print("cralwer router: ",session_data)
         request.session['crawler'] = session_data
 
         return status

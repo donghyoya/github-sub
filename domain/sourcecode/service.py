@@ -11,17 +11,20 @@ from default.schema.cralwerschema import CrawlerBaseSchema
 
 from domain.repository.model import Repository
 
-def get_source_codes_by_repository_id(crawler: CrawlerBaseSchema, db: Session):
+def get_source_codes_by_repository_id(crawler: CrawlerBaseSchema, db: Session)-> List[SourceCodeReadSchema]:
 
     redis_data = RepositoryWorkingStatus.from_redis(crawler.username, crawler.reponame)
     
     if not redis_data:
         raise HTTPException(status_code=404, detail="Repository status not found in Redis")
     
-    print("redis_data rid: ",redis_data.get_repoid())
+    # print("redis_data rid: ",redis_data.get_repoid())
     
     sources = db.query(SourceCode).filter(SourceCode.rid == redis_data.get_repoid()).all()
-    return [SourceCodeReadSchema.model_validate(sources) for source in sources]
+    print("sources: ",sources)
+    returnlist = [SourceCodeReadSchema.model_validate(source) for source in sources]
+    print(returnlist)
+    return returnlist
 
 
 '''

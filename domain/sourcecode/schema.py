@@ -8,10 +8,12 @@ class SourceCodeSchema(BaseModel):
     sourceCode: Optional[str] = Field(None, example="print('Hello World')")
     path: Optional[str] = Field(None, example="/home/user/helloworld.py")
     url: Optional[str] = Field(None, examples="https://test.test.com")
+    rmstate: Optional[bool] = Field(False, example=True)
     rid: int
 
     class Config:
         from_attributes = True
+        
 class SourceCodeReadSchema(BaseModel):
     sid: int
     sourceName: str
@@ -19,8 +21,9 @@ class SourceCodeReadSchema(BaseModel):
     path: str
     url: str
     language: str
+    rmstate: bool
     rid: int
-    
 
-    def config() -> ConfigDict:
-        return ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True)
+    # def config() -> ConfigDict:
+    #     return ConfigDict(from_attributes=True)
