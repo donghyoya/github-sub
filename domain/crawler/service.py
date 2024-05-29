@@ -32,12 +32,16 @@ def service_start(username: str, reponame: str, url: str,
     # 이제 gitUser는 반드시 유효한 객체임을 보장
     repository = RepositoryService.get_repository_by_name_and_guid(db, reponame, gitUser.uid)
     
+    # repository 없으면 False 있으면 True
+    # -> sourcecode 동작 다르게
+    check_repository = False
     if repository is None:
         repository = Repository(connectCnt=1, repoName=reponame, guid=gitUser.uid, language="")
         repository = RepositoryService.create_repository(repository, db)
     else:
         repository.connectCnt += 1
         RepositoryService.update_repository(repository, db)
+        check_repository = True
     
     rtSchema = CrawlerBaseSchema(username=gitUser.username, reponame=repository.repoName)
 
@@ -49,7 +53,12 @@ def service_start(username: str, reponame: str, url: str,
         else:
             # 상태정보가 없거나 실패했다면 크롤링을 재시작할 것
             status = save_status(username,reponame,repository.rid,WorkStatus.CRAWLING_NOW)
-            background_tasks.add_task(start_crawling, repository.rid, url, db)
+
+            if(check_repository is False):
+                background_tasks.add_task(start_add_crawling, repository.rid, url, db)
+            else:
+                background_tasks.add_task(start_update_crawling, repository.rid, url, db)
+            
             return status, rtSchema
     except Exception as e:
         print(e)
