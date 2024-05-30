@@ -2,8 +2,7 @@ from fastapi import APIRouter, Request, BackgroundTasks
 from fastapi.templating import Jinja2Templates
 
 from domain.frontend.schema import RepositoryForm, RequestAiForm
-from domain.frontend.service import get_row_repository, get_repository, \
-    mock_polling, mock_crawl_start, mock_ai_start
+from domain.frontend.service import get_row_repository, get_repository, mock_crawl_start, mock_ai_start, get_working_status
 from default.utils.urlutils import url_checker
 
 router = APIRouter(
@@ -96,11 +95,6 @@ def post_crawl(form: RepositoryForm, background_tasks: BackgroundTasks):
         return {
             'status' : 'FAIL'
         }
-
-@router.get("/mock/polling/{username}/{reponame}")
-def get_polling(username: str, reponame: str):
-    status = mock_polling(username, reponame)
-    return status
 
 @router.post("/mock/ai")
 def get_mock_ai(form: RequestAiForm, background_tasks: BackgroundTasks):

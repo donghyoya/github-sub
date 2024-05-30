@@ -10,23 +10,6 @@ services:
       - "4443:4443"
       - "4444:4444"
 
-#  selenium:
-#    image: selenium/hub
-#    ports:
-#      - "4442:4442"
-#      - "4443:4443"
-#      - "4444:4444"
-#
-#  chrome:
-#    image: selenium/node-chrome:beta
-#    shm_size: 512mb
-#    depends_on:
-#      - selenium
-#    environment:
-#      - SE_EVENT_BUS_HOST=selenium
-#      - SE_EVENT_BUS_PUBLISH_PORT=4442
-#      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-
   cache_db:
     image: redis
     ports:
@@ -38,6 +21,7 @@ services:
       - 8080:80
     volumes:
       - .env:/code/.env # 설정 파일 적용법
+      - .:/code
 
 networks:
   default:

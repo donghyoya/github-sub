@@ -1,19 +1,13 @@
-import re
 import time
-from contextlib import contextmanager
-
 from fastapi import BackgroundTasks
-
-from default.config.crawlerconfig import get_crawling_driver
-from default.config import dbconfig
+from default.utils.redisutils import load_status, save_status, WorkStatus, RepositoryWorkingStatus
 
 from domain.crawler.service import source_crawling
 from domain.frontend.mock_repository import add_repository, find_repository
 from domain.frontend.view_model import VMRepository, VMSourceCode
 from domain.frontend.converter import convert_to_vm
 
-from domain.frontend.status_service import WorkStatus, \
-    load_status, save_status, RepositoryWorkingStatus
+
 
 def get_row_repository(username, reponame):
     ret = find_repository(username, reponame)
@@ -25,12 +19,8 @@ def get_repository(username, reponame):
     # print("ret get_reposi ",ret)
     return ret
 
-def mock_polling(username:str, reponame:str):
-    """
-    상태정보 가져와서 리턴
-    """
-    status = load_status(username,reponame)
-    return status
+def get_working_status(username: str, reponame: str):
+    return load_status(username, reponame)
 
 def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame: str, url: str):
     """

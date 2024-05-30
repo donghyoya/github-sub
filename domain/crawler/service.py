@@ -21,7 +21,7 @@ def service_start(username: str, reponame: str, url: str,
     
     gitUser = GithubUserService.get_user_by_username(db, username)
         
-        # gitUser가 None인 경우 새로운 사용자를 생성
+    # gitUser가 None인 경우 새로운 사용자를 생성
     if gitUser is None:
         gitUser = GithubUser(username=username, site=url, connectCnt=1, follower=0, following=0)
         gitUser = GithubUserService.create_user(gitUser, db)
@@ -69,18 +69,19 @@ def service_start(username: str, reponame: str, url: str,
 repository가 없는경우에 SourceCode 추가
 '''
 def start_add_crawling(repository: Repository, url: str, db: Session) -> List[SourceCode]:
-    
     sources = source_crawling(url, conv2orm)
 
     update_sources = SourceCodeService.add_source_codes(source_codes=sources,repository=repository,db=db)
-    
+
+    ## 성공시 상태정보 저장
+    status = save_status(repository.github_user.username, repository.repoName, repository.rid, WorkStatus.CRAWLING_SUCCESS)
+
     return update_sources
 
 '''
 repository가 있는경우 SourceCode 업데이트 및 추가
 '''
 def start_update_crawling(repository: Repository, url: str, db: Session):
-
     before_sources = SourceCodeService.get_all_source_codes_by_rid(rid=repository.rid, db=db)
 
     sources = source_crawling(url, conv2orm)
@@ -95,6 +96,9 @@ def start_update_crawling(repository: Repository, url: str, db: Session):
     missing_sids = list(before_sids - after_sids)
 
     SourceCodeService.update_rmstate_for_missing_sids(missing_sids=missing_sids, db=db)
+
+    ## 성공시 상태정보 저장
+    status = save_status(repository.github_user.username, repository.repoName, repository.rid, WorkStatus.CRAWLING_SUCCESS)
 
     return after_sources
 
