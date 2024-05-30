@@ -8,7 +8,7 @@ REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_DB = 0 # os.getenv("REDIS_DB")
 
-def get_redis():
+def get_redis() -> redis.Redis:
     try:
         client = redis.Redis(
             host=REDIS_HOST,

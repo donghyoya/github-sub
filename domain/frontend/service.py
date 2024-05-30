@@ -1,24 +1,28 @@
 import re
 import time
+from contextlib import contextmanager
 
 from fastapi import BackgroundTasks
 
 from default.config.crawlerconfig import get_crawling_driver
-from domain.crawler.converter import convert_to_vm
-from domain.crawler.router import GitCrawler
-from domain.crawler.service import git_crawling
-from domain.frontend.mock_repository import add_repository, find_repository, get_status_repository, \
-    add_status_repository
-from domain.frontend.view_model import VMRepository, VMSourceCode
-from domain.frontend.status_service import WorkStatus, load_status, save_status, RepositoryWorkingStatus
+from default.config import dbconfig
 
+from domain.crawler.service import source_crawling
+from domain.frontend.mock_repository import add_repository, find_repository
+from domain.frontend.view_model import VMRepository, VMSourceCode
+from domain.frontend.converter import convert_to_vm
+
+from domain.frontend.status_service import WorkStatus, \
+    load_status, save_status, RepositoryWorkingStatus
 
 def get_row_repository(username, reponame):
     ret = find_repository(username, reponame)
+    # print("get_row ret: ",ret)
     return ret
 
 def get_repository(username, reponame):
     ret = find_repository(username, reponame)
+    # print("ret get_reposi ",ret)
     return ret
 
 def mock_polling(username:str, reponame:str):
@@ -57,7 +61,7 @@ def mock_crawl_service(username: str, reponame: str, url: str):
     """
     try:
         # 크롤링 업무
-        sources = git_crawling(url, convert_to_vm)
+        sources = source_crawling(url, convert_to_vm)
 
         # 데이터베이스에 저장
         repo = VMRepository().set_username(username).set_reponame(reponame)
@@ -66,7 +70,6 @@ def mock_crawl_service(username: str, reponame: str, url: str):
 
         # 상태정보 저장 - 성공
         save_status(username,reponame, WorkStatus.CRAWLING_SUCCESS)
-
     except Exception as e:
         print("exception", e)
         # 상태정보 저장 - 실패
@@ -113,15 +116,3 @@ def mock_ai_service(username: str, reponame: str):
         status = save_status(username,reponame, WorkStatus.AI_API_FAIL)
 
 
-# utils
-REPO_URL_PATTERN = r'https?://github.com/[a-zA-Z0-9]+/[a-zA-Z0-9_-]+'
-REPO_NAME_PATTERN = r'github.com/([a-zA-Z0-9-]+)/([a-zA-Z0-9-]+)'
-
-def url_checker(url: str):
-    """
-    url이 github url인가 체크
-    """
-    if re.match(REPO_URL_PATTERN, url):
-        return re.findall(REPO_NAME_PATTERN, url)[0]
-    else:
-        return None

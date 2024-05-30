@@ -21,12 +21,14 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-# from default.config.dbconfig import Base
-from domain.user.model import GithubUser 
-from domain.airesult.model import AiResult
-from domain.repository.model import Repository
-from domain.sourcecode.model import SourceCode
-target_metadata = [GithubUser.metadata, AiResult.metadata, Repository.metadata, SourceCode.metadata]
+from default.config.dbconfig import Base
+target_metadata = Base.metadata
+
+# from domain.user.model import GithubUser 
+# from domain.airesult.model import AiResult
+# from domain.repository.model import Repository
+# from domain.sourcecode.model import SourceCode
+# target_metadata = [GithubUser.metadata, AiResult.metadata, Repository.metadata, SourceCode.metadata]
 
 # target_metadata = GithubUser.metadata
 load_dotenv(".env")

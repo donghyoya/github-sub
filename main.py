@@ -13,12 +13,14 @@ from domain.frontend.router import router as frontend_router
 #미들웨어 적용
 from default.middleware.coresmiddleware import setup_cors
 from default.middleware.redismiddleware import redis_middleware
+from default.middleware.sessionmiddleware import setup_middleware
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 #표준 fastpi 미들웨어 추가
 setup_cors(app)
+setup_middleware(app)
 # app.middleware("http")(redis_middleware)
 
 '''
