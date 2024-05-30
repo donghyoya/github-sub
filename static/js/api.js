@@ -7,26 +7,20 @@ const resultAi = document.getElementById('result-ai');
 document.getElementById("repo-form").addEventListener("submit", (event) =>{
     event.preventDefault();
     clearResult();
+
     const form = document.getElementById("repo-form");
-
     const formData = new FormData(form);
-    const formJsonData = {};
-    formData.forEach((value,key) => {
-        formJsonData[key] = value;
-    });
+    const targetUrl = formData.get("url");
+    const endpoints = `/crawler/crawling?url=${targetUrl}`
 
-    const jsonData = JSON.stringify(formJsonData);
+    console.log(endpoints);
     setCrawlingProcessBox(true);
 
     /**
      * 크롤링 요청은 편의상 form 객체에서 진행함
      */
-    fetch('/ui/mock/crawl',{
-        method: 'POST',
-        headers:{
-            'Content-Type': 'application/json'
-        },
-        body:jsonData
+    fetch(endpoints,{
+        method: 'GET',
     }).then(resp=>resp.json())
     .then(data=>{
         /**
@@ -92,7 +86,7 @@ const pollingStatus = (username, reponame) => {
      *
      */
     const repo = `${username}/${reponame}`
-    const pollingEndpoint = `/ui/mock/polling/${repo}`;
+    const pollingEndpoint = `/ui/polling/${repo}`;
 
     /* start of pollingStatus */
     const pollingFetch = () => {
@@ -112,8 +106,8 @@ const pollingStatus = (username, reponame) => {
                  * ai request하고
                  * 크롤링 완료처리를 함
                  */
-                requestAi(username, reponame)// ai request하기
                 getSourceCode(username, reponame); // 크롤링 데이터 받아오기
+                requestAi(username, reponame)// ai request하기
             } else if(state === 210){
                 /**
                  * ai 완료

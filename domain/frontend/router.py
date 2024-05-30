@@ -14,6 +14,11 @@ templates = Jinja2Templates(directory="templates")
 def get_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@router.get("/polling/{username}/{reponame}")
+def get_polling(username: str, reponame: str):
+    status = get_working_status(username, reponame)
+    return status
+
 @router.get("/{username}/{reponame}/row")
 def get_repository_for_ai(
         username: str, reponame: str,
