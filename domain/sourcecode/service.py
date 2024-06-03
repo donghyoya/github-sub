@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from .model import SourceCode
@@ -8,8 +8,31 @@ from functools import singledispatch
 
 from default.utils.redisutils import RepositoryWorkingStatus
 from default.schema.cralwerschema import CrawlerBaseSchema
+from default.config import dbconfig
 
 from domain.repository.model import Repository
+
+def get_db():
+    try:
+        db = dbconfig.SessionLocal()
+        yield db
+    finally:
+        db.close()
+
+
+def get_source_codes_by_session(request: Request):
+    db = next(get_db)
+
+    session_data = request.session.get('cralwer')
+
+    if session_data:
+        data_parts = session_data.split()
+        input_username = data_parts[0].split(':')[1]
+        input_reponame = data_parts[1].split(':')[1]
+        input_host = data_parts[2].split(':')[1]
+
+    
+
 
 def get_source_codes_by_repository_id(crawler: CrawlerBaseSchema, db: Session)-> List[SourceCodeReadSchema]:
 
@@ -21,7 +44,7 @@ def get_source_codes_by_repository_id(crawler: CrawlerBaseSchema, db: Session)->
     # print("redis_data rid: ",redis_data.get_repoid())
     
     sources = db.query(SourceCode).filter(SourceCode.rid == redis_data.get_repoid()).all()
-    print("sources: ",sources)
+
     returnlist = [SourceCodeReadSchema.model_validate(source) for source in sources]
     print(returnlist)
     return returnlist

@@ -49,12 +49,13 @@ async def perform_crawl(background_tasks: BackgroundTasks, url: str, extensions:
 async def start_crawling(url:str, background_tasks: BackgroundTasks, request: Request, db: Session = Depends(get_db)):
     repo = url_checker(url)
     request.session.clear()
+    
     if repo is not None:
         status, value = crawlerService.service_start(username=repo[0], reponame=repo[1], 
                                                    url=url, background_tasks=background_tasks, 
                                                    db=db)
         #CralwerBaseSchema
-        session_data = f'username:{value.username} reponame:{value.reponame}'
+        session_data = f'username:{value.username} reponame:{value.reponame} host:{request.client.host}'
         # print("cralwer router: ",session_data)
         request.session['crawler'] = session_data
 

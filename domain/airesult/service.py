@@ -26,7 +26,6 @@ def insertOrUpdateAi(airesult: AiSettingSchema, crawler: CrawlerBaseSchema, db: 
     ai_resultdb = create_ai_result(ai_result_insert_db, db)
 
     return AiResultBaseSchema.model_validate(ai_resultdb)
-    
 
 '''
 ====crud=====
