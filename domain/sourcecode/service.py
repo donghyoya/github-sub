@@ -31,6 +31,9 @@ def get_source_codes_by_session(request: Request):
         input_reponame = data_parts[1].split(':')[1]
         input_host = data_parts[2].split(':')[1]
 
+    redis_data = RepositoryWorkingStatus.from_redis(input_username, input_reponame)
+    
+
     
 
 
