@@ -24,9 +24,57 @@ def get_session():
         yield session
     finally:
         session.close()
+background_tasks = BackgroundTasks
 
+def service_start_local(username: str, reponame: str, url: str):
+    db = next(get_session())
+    gitUser = GithubUserService.get_user_by_username(db, username)
+        
+    # gitUser가 None인 경우 새로운 사용자를 생성
+    if gitUser is None:
+        gitUser = GithubUser(username=username, site=url, connectCnt=1, follower=0, following=0)
+        gitUser = GithubUserService.create_user(gitUser, db)
+    else:
+        gitUser.connectCnt += 1
+        GithubUserService.update_user(gitUser, db)
 
+    # 이제 gitUser는 반드시 유효한 객체임을 보장
+    repository = RepositoryService.get_repository_by_name_and_guid(db, reponame, gitUser.uid)
+    
+    # repository 없으면 False 있으면 True
+    # -> sourcecode 동작 다르게
+    check_repository = False
+    if repository is None:
+        repository = Repository(connectCnt=1, repoName=reponame, guid=gitUser.uid, language="")
+        repository = RepositoryService.create_repository(repository, db)
+    else:
+        repository.connectCnt += 1
+        RepositoryService.update_repository(repository, db)
+        check_repository = True
+    
+    rtSchema = CrawlerBaseSchema(username=gitUser.username, reponame=repository.repoName)
 
+    try:
+        status = load_status(username,reponame)
+        if not status.needCrawling():
+            # 상태정보가 있으므로 상태정보를 반환한다
+            return status, rtSchema
+        else:
+            # 상태정보가 없거나 실패했다면 크롤링을 재시작할 것
+            status = save_status(username,reponame,repository.rid,WorkStatus.CRAWLING_NOW)
+
+            if(check_repository is False):
+                background_tasks.add_task(start_add_crawling, repository, url, db)
+            else:
+                background_tasks.add_task(start_update_crawling, repository, url, db)
+            
+            return status, rtSchema
+    except Exception as e:
+        print(e)
+        status = save_status(username,reponame,repository.rid,WorkStatus.CRAWLING_FAIL)
+        return status, rtSchema
+
+#==============================================
 
 def service_start(username: str, reponame: str, url: str, 
                   background_tasks: BackgroundTasks , db: Session)->CrawlerBaseSchema:
