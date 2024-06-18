@@ -9,6 +9,7 @@ from default.config import dbconfig
 from default.config.crawlerconfig import get_crawling_driver
 from default.utils.urlutils import url_checker
 
+from .crawler import GitCrawler
 from domain.crawler import service as crawlerService
 
 load_dotenv('.env')

@@ -4,6 +4,7 @@ from typing import List
 
 from default.config.crawlerconfig import get_crawling_driver
 from default.utils.redisutils import WorkStatus, load_status, save_status, RepositoryWorkingStatus
+from default.config import dbconfig
 
 from .crawler import GitCrawler
 from .OrmConverter import conv2orm
@@ -14,6 +15,17 @@ from domain.repository.model import Repository
 from domain.repository import service as RepositoryService
 from domain.sourcecode.model import SourceCode
 from domain.sourcecode import service as SourceCodeService
+
+
+#===========로컬==========
+def get_session():
+    session = dbconfig.SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
 
 
 def service_start(username: str, reponame: str, url: str, 
