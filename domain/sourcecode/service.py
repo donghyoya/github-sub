@@ -144,6 +144,8 @@ def add_source_codes(source_codes: List[SourceCode], repository: Repository, db:
     added = []
 
     for src in source_codes:
+        if(len(src.sourceCode) >= 65534):
+            src.sourceCode("too long")
         src.rmstate = True
         src.rid = repository.rid
         src.repository = repository
