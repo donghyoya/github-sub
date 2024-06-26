@@ -113,17 +113,13 @@ def save_status(username, reponame, rid, status: WorkStatus):
     key = f"{rid}:status"
     repo_status = RepositoryWorkingStatus().set_usernamae(username).set_reponame(reponame).set_repoid(rid).set_status(status)
     value = repo_status.to_json()
-    expire_seconds = 60*60
+    expire_seconds = 60*60 # 1hour
     db.setex(
         key,
         expire_seconds,
         value
     )
     return repo_status
-
-
-def load_status(username, reponame) -> RepositoryWorkingStatus:
-    return RepositoryWorkingStatus.from_redis(username, reponame)
 
 def load_status(rid: int) -> RepositoryWorkingStatus:
     return RepositoryWorkingStatus.from_redis(rid)
