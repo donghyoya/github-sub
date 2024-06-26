@@ -33,7 +33,7 @@ document.getElementById("repo-form").addEventListener("submit", (event) =>{
             /**
              * 크롤링 진행 중 -> polling으로 상태정보를 갱신
              */
-            pollingStatus(data['username'], data['reponame']); // 상태 갱신
+            pollingStatus(data['repoid']); // 상태 갱신
         }else if(state === 110){
             /**
              * 크롤링 완료 + ai 진행 안되어있음
@@ -41,23 +41,23 @@ document.getElementById("repo-form").addEventListener("submit", (event) =>{
              * 크롤링 완료처리를 함
              */
             requestAi(data['username'], data['reponame']);// ai request
-            getSourceCode(data['username'], data['reponame']); // 크롤링 완료 처리
-            pollingStatus(data['username'], data['reponame']); // 상태 갱신
+            getSourceCode(data['repoid']); // 크롤링 데이터 받아오기
+            pollingStatus(data['repoid']); // 상태 갱신
         }else if(state === 200){
             /**
              * AI 작업 중
              * = 작업 순서상 크롤링은 완료되었음 => 크롤링 코드 받아오기
              * = AI request도 이미 완료되었음 => AI request는 안해도 되고 status만 갱신
              */
-            getSourceCode(data['username'], data['reponame']); // 크롤링 데이터 받아오기
-            pollingStatus(data['username'], data['reponame']); // 상태 갱신
+            getSourceCode(data['repoid']); // 크롤링 데이터 받아오기
+            pollingStatus(data['repoid']); // 상태 갱신
         }else if(state === 210){
             /**
              * AI작업까지 완료
              * = 크롤링 데이터 가져오기
              * = AI 데이터 가져오기
              */
-            getSourceCode(data['username'], data['reponame']); // 크롤링 데이터 받아오기
+            getSourceCode(data['repoid']); // 크롤링 데이터 받아오기
             getAiResult(data['username'], data['reponame']); // ai 데이터 가져오기
         }else if(state === -1){
             // 잘못된 api 요청
@@ -80,12 +80,12 @@ const clearResult = () => {
 }
 
 /* start polling status */
-const pollingStatus = (username, reponame) => {
+const pollingStatus = (rid) => {
     /**
      * 서버로부터 작업의 상태정보를 가져오고 해당 상태에 걸맞는 적절한 메서드를 호출한다
      *
      */
-    const repo = `${username}/${reponame}`
+    const repo = `${rid}`
     const pollingEndpoint = `/ui/polling/${repo}`;
 
     /* start of pollingStatus */
@@ -106,7 +106,7 @@ const pollingStatus = (username, reponame) => {
                  * ai request하고
                  * 크롤링 완료처리를 함
                  */
-                getSourceCode(username, reponame); // 크롤링 데이터 받아오기
+                getSourceCode(rid); // 크롤링 데이터 받아오기
                 requestAi(username, reponame)// ai request하기
             } else if(state === 210){
                 /**
@@ -134,8 +134,8 @@ const pollingStatus = (username, reponame) => {
 
 
 /* insert template fragment */
-const getSourceCode = (username, reponame) => {
-    const repository = `${username}/${reponame}`;
+const getSourceCode = (rid) => {
+    const repository = `${rid}`;
     fetch(`/ui/frag/${repository}/source`,{
         method: 'GET'
     }).then(resp=>resp.text())
