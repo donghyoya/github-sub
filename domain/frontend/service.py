@@ -16,7 +16,12 @@ from domain.sourcecode.model import SourceCode
 def convert_repository(repository: Repository) -> VMRepository:
     vm_repo = VMRepository()
     # vm_repo.set_username(repository.github_user.username)
-    vm_repo.set_repoid(repository.rid).set_reponame(repository.repoName)
+    (vm_repo
+        .set_repoid(repository.rid)
+        .set_reponame(repository.repoName)
+        .set_ai_answer(repository.ai_results.answer)
+        .set_ai_score(repository.ai_results.score)
+    )
     source_codes = []
     for source in repository.source_codes:
         source_codes.append(convert_source_code(source))
@@ -32,11 +37,9 @@ def convert_source_code(source_code: SourceCode) -> VMSourceCode:
             .set_path(source_code.path)
         )
 
-def search_repository_by_rid(rid, db: Session):
+def search_repository_by_rid(rid, db: Session) -> VMRepository:
     repository = get_repository(rid, db)
     ret = convert_repository(repository)
-    print(repository.repoName)
-    print(len(repository.source_codes))
     return ret
 
 def get_working_status(username: str, reponame: str):

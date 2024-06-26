@@ -53,50 +53,53 @@ def get_repository_for_user(
     return templates.TemplateResponse("result.html", context)
 
 # start of /frag
-@router.get("/frag/{username}/{reponame}/source")
+@router.get("/frag/{rid}/source")
 def get_repository_for_user(
-        username: str, reponame: str,
-        request:Request):
+        rid: int,
+        request:Request,
+        db: Session = Depends(get_db),
+    ):
     """
     javascript에서 data binding 하기 곤란하므로 server side에서 rendering된 html 조각을 제공
     """
-    repository = get_repository(username, reponame)
+    repository = search_repository_by_rid(rid, db)
     context = {
         "request": request,
         "repo": repository
     }
     return templates.TemplateResponse("fragment/source_code.html", context)
 
-@router.get("/frag/{username}/{reponame}/ai")
+@router.get("/frag/{rid}/ai")
 def get_repository_for_user(
-        username: str, reponame: str,
-        request:Request):
+        rid: int,
+        request: Request,
+        db: Session = Depends(get_db),
+    ):
     """
     javascript에서 data binding 하기 곤란하므로 server side에서 rendering된 html 조각을 제공
     """
-    repository = get_repository(username, reponame)
+    repository = search_repository_by_rid(rid, db)
     context = {
         "request": request,
         "repo": repository
     }
     return templates.TemplateResponse("fragment/ai_result.html", context)
 
-@router.get("/frag/{username}/{reponame}/repository")
+@router.get("/frag/{rid}/repository")
 def get_repository_for_user(
-        username: str, reponame: str,
-        request:Request):
+        rid: int,
+        request: Request,
+        db: Session = Depends(get_db),
+):
     """
     javascript에서 data binding 하기 곤란하므로 server side에서 rendering된 html 조각을 제공
     """
-    repository = get_repository(username, reponame)
+    repository = search_repository_by_rid(rid, db)
     context = {
         "request": request,
         "repo": repository
     }
     return templates.TemplateResponse("fragment/repository_header.html", context)
-
-
-
 
 ### legacy
 
