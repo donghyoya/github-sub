@@ -106,7 +106,8 @@ def service_start(username: str, reponame: str, url: str,
     rtSchema = CrawlerBaseSchema(username=gitUser.username, reponame=repository.repoName)
 
     try:
-        status = load_status(username,reponame)
+        # 상태정보를 가져온다
+        status = load_status(repository.rid)
         if not status.needCrawling():
             # 상태정보가 있으므로 상태정보를 반환한다
             return status, rtSchema
@@ -158,7 +159,8 @@ def start_update_crawling(repository: Repository, url: str, db: Session):
     SourceCodeService.update_rmstate_for_missing_sids(missing_sids=missing_sids, db=db)
 
     ## 성공시 상태정보 저장
-    status = save_status(repository.github_user.username, repository.repoName, repository.rid, WorkStatus.CRAWLING_SUCCESS)
+    # status = save_status(repository.github_user.username, repository.repoName, repository.rid, WorkStatus.CRAWLING_SUCCESS)
+    status = save_status(None, repository.repoName, repository.rid, WorkStatus.CRAWLING_SUCCESS)
 
     return after_sources
 

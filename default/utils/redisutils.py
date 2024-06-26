@@ -98,9 +98,19 @@ class RepositoryWorkingStatus:
             return cls().set_usernamae(username).set_reponame(reponame).set_status(WorkStatus.NONE)
         return cls.from_json(value.decode('utf-8'))
 
+    @classmethod
+    def from_redis(cls, rid: int):
+        db = get_redis()
+        key = f"{rid}:status"
+        value = db.get(key)
+        if value is None:
+            return cls().set_repoid(rid).set_status(WorkStatus.NONE)
+        return cls.from_json(value.decode('utf-8'))
+
+
 def save_status(username, reponame, rid, status: WorkStatus):
     db = get_redis()
-    key = f"{username}:{reponame}:status"
+    key = f"{rid}:status"
     repo_status = RepositoryWorkingStatus().set_usernamae(username).set_reponame(reponame).set_repoid(rid).set_status(status)
     value = repo_status.to_json()
     expire_seconds = 60*60
@@ -114,3 +124,7 @@ def save_status(username, reponame, rid, status: WorkStatus):
 
 def load_status(username, reponame) -> RepositoryWorkingStatus:
     return RepositoryWorkingStatus.from_redis(username, reponame)
+
+def load_status(rid: int) -> RepositoryWorkingStatus:
+    return RepositoryWorkingStatus.from_redis(rid)
+

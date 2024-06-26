@@ -33,7 +33,12 @@ class RepositoryWorkingStatus:
     def __init__(self):
         self.username = None
         self.reponame = None
+        self.repoid = None
         self.status = None
+
+    def set_repoid(self, rid:int):
+        self.repoid = rid
+        return self
 
     def set_usernamae(self, username: str):
         self.username = username
@@ -48,7 +53,7 @@ class RepositoryWorkingStatus:
         return self
 
     def get_cache_key(self):
-        return f"{self.usernamae}:{self.reponame}:status"
+        return f"{self.repoid}:status"
 
     def get_cache_value(self):
         return self.status.value.encode("utf-8")

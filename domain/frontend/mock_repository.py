@@ -31,6 +31,17 @@ def add_repository(username, reponame, repository):
     expire_second = 60 * 60
     db.setex(f"{username}:{reponame}", expire_second, data)
 
+def find_repository(rid):
+    # db = RedisConfig.RedisClient.get_instance()
+    db = get_redis()
+    data = db.get(f"{rid}")
+
+    if data is not None:
+        return json.loads(data)
+    else:
+        return None
+
+
 def find_repository(username, reponame):
     # db = RedisConfig.RedisClient.get_instance()
     db = get_redis()
