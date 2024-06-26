@@ -1,10 +1,18 @@
+from domain.repository.model import Repository
+
+
 class VMRepository:
     def __init__(self):
+        self.repoid = None
         self.username = None
         self.reponame = None
         self.ai_answer = None
         self.ai_score = None
         self.sources = None
+
+    def set_repoid(self, repoid):
+        self.repoid = repoid
+        return self
 
     def set_username(self, username):
         self.username = username

@@ -6,28 +6,37 @@ from domain.crawler.service import source_crawling
 from domain.frontend.mock_repository import add_repository, find_repository
 from domain.frontend.view_model import VMRepository, VMSourceCode
 from domain.frontend.converter import convert_to_vm
+from domain.repository.model import Repository
+from domain.repository.service import get_repository
+from sqlalchemy.orm import Session
+
+from domain.sourcecode.model import SourceCode
 
 
+def convert_repository(repository: Repository) -> VMRepository:
+    vm_repo = VMRepository()
+    # vm_repo.set_username(repository.github_user.username)
+    vm_repo.set_repoid(repository.rid).set_reponame(repository.repoName)
+    source_codes = []
+    for source in repository.source_codes:
+        source_codes.append(convert_source_code(source))
+    vm_repo.set_sources(source_codes)
+    return vm_repo
 
-def get_row_repository(rid):
-    ret = find_repository(rid)
-    # print("get_row ret: ",ret)
-    return ret
+def convert_source_code(source_code: SourceCode) -> VMSourceCode:
+    return (VMSourceCode()
+            .set_sourceName(source_code.sourceName)
+            .set_sourceCode(source_code.sourceCode)
+            .set_url(source_code.url)
+            .set_language(source_code.language)
+            .set_path(source_code.path)
+        )
 
-def get_repository(rid):
-    ret = find_repository(rid)
-    # print("ret get_reposi ",ret)
-    return ret
-
-
-def get_row_repository(username, reponame):
-    ret = find_repository(username, reponame)
-    # print("get_row ret: ",ret)
-    return ret
-
-def get_repository(username, reponame):
-    ret = find_repository(username, reponame)
-    # print("ret get_reposi ",ret)
+def search_repository_by_rid(rid, db: Session):
+    repository = get_repository(rid, db)
+    ret = convert_repository(repository)
+    print(repository.repoName)
+    print(len(repository.source_codes))
     return ret
 
 def get_working_status(username: str, reponame: str):
@@ -35,10 +44,6 @@ def get_working_status(username: str, reponame: str):
 
 def get_working_status(rid: int):
     return load_status(rid)
-
-def get_repository(rid):
-    ret = find_repository(rid)
-    return ret
 
 
 def mock_crawl_start(background_tasks: BackgroundTasks, username: str, reponame: str, url: str):

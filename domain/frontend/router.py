@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Request, BackgroundTasks
+from fastapi import APIRouter, Request, BackgroundTasks, Depends
 from fastapi.templating import Jinja2Templates
 
+from domain.airesult.router import get_db
 from domain.frontend.schema import RepositoryForm, RequestAiForm
-from domain.frontend.service import get_row_repository, get_repository, mock_crawl_start, mock_ai_start, get_working_status
+from domain.frontend.service import search_repository_by_rid, mock_crawl_start, mock_ai_start, get_working_status
 from default.utils.urlutils import url_checker
+from sqlalchemy.orm import Session
 
 router = APIRouter(
     tags=["frontend"]
@@ -24,11 +26,13 @@ def get_polling(rid: int):
 @router.get("/{rid}/row")
 def get_repository_for_ai(
         rid: int,
-        request: Request):
+        request: Request,
+        db: Session = Depends(get_db),
+    ):
     """
     open ai의 url query를 위해 크롤링 데이터만 보여주는 정적 페이지 return
     """
-    repository = get_row_repository(rid)
+    repository = search_repository_by_rid(rid, db)
     context = {
         "request":request,
         "repo" : repository
@@ -38,8 +42,10 @@ def get_repository_for_ai(
 @router.get("/{rid}")
 def get_repository_for_user(
         rid:int,
-        request:Request):
-    repository = get_repository(rid)
+        request:Request,
+        db: Session = Depends(get_db),
+    ):
+    repository = search_repository_by_rid(rid, db)
     context = {
         "request": request,
         "repo": repository
