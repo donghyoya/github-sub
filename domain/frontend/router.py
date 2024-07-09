@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Request, BackgroundTasks, Depends
+from fastapi import APIRouter, Request, BackgroundTasks, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
 
-from domain.airesult.router import get_db
+from default.config.aiconfig import AiConfig
+from domain.airesult.router import get_db, get_ai
 from domain.frontend.schema import RepositoryForm, RequestAiForm
-from domain.frontend.service import search_repository_by_rid, get_working_status
+from domain.frontend.service import search_repository_by_rid, get_working_status, create_repository_ai_result
 from default.utils.urlutils import url_checker
 from sqlalchemy.orm import Session
 
@@ -51,6 +52,16 @@ def get_repository_for_user(
         "repo": repository
     }
     return templates.TemplateResponse("result.html", context)
+
+@router.post("/{rid}/ai")
+def post_repository_ai(
+        rid:int,
+        request: Request,
+        db: Session = Depends(get_db),
+        ai_config: AiConfig = Depends(get_ai)
+    ):
+    ai_result = create_repository_ai_result(rid=rid, ai_config=ai_config, db=db)
+    return ai_result
 
 # start of /frag
 @router.get("/frag/{rid}/source")

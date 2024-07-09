@@ -10,6 +10,7 @@ from default.config.aiconfig import AiConfig
 from default.config.redisdbconfig import get_redis
 
 from default.schema.cralwerschema import CrawlerBaseSchema
+from .service import create_ai_result
 
 router = APIRouter(
     tags=["airesult"]
@@ -51,7 +52,7 @@ async def perform_text_completion(prompt: str, request: Request, ai_config: AiCo
 @router.post("/airesults/",response_model=schema.AiResultSchema, 
              status_code = status.HTTP_200_OK)
 def create_ai_resutl(ai_result: schema.AiResultSchema, db: Session = Depends(get_db)):
-    return create_ai_resutl(db=db, ai_result= ai_result)
+    return create_ai_result(db=db, ai_result= ai_result)
 
 @router.get("/airesults/{aid}", response_model=schema.AiResultSchema)
 def read_result(aid: int, db: Session = Depends(get_db)):

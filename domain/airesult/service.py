@@ -41,12 +41,10 @@ def insertUrlLocal(url: String, crawler: CrawlerBaseSchema):
     return AiResultBaseSchema.model_validate(ai_resultdb)
 
 
-    
-
 def insertOrUpdateAi(airesult: AiSettingSchema, crawler: CrawlerBaseSchema, db: Session) -> AiResultBaseSchema:
     
     redis_data = RepositoryWorkingStatus.from_redis(crawler.username, crawler.reponame)
-    
+
     if not redis_data:
         raise HTTPException(status_code=404, detail="Repository status not found in Redis")
 
@@ -57,6 +55,15 @@ def insertOrUpdateAi(airesult: AiSettingSchema, crawler: CrawlerBaseSchema, db: 
 
     return AiResultBaseSchema.model_validate(ai_resultdb)
 
+def insertOrUpdateAiResult(airesult: AiSettingSchema, rid:int, db:Session) -> AiResultBaseSchema:
+    repository = get_repository(rid=rid,db=db)
+    ai_result_insert_db = AiResult(model=airesult.model, answer=airesult.answer,
+                                   score=50, rid=repository.rid, repository=repository)
+    ai_resultdb = create_ai_result(ai_result_insert_db, db)
+
+    return AiResultBaseSchema.model_validate(ai_resultdb)
+
+
 '''
 ====crud=====
 '''
@@ -65,7 +72,7 @@ def insertOrUpdateAi(airesult: AiSettingSchema, crawler: CrawlerBaseSchema, db: 
 def create_ai_result(ai_result, db: Session):
     raise NotImplementedError("Unsupported type")
 
-@create_ai_resung081lt.register(AiResultSchema)
+@create_ai_result.register(AiResultSchema)
 def _(ai_result: AiResultSchema, db: Session):
     db_ai_result = AiResult(**ai_result.model_dump())
     db.add(db_ai_result)
