@@ -25,3 +25,70 @@ a {
     color: inherit; /* 링크 색상을 부모 요소에서 상속 */
     cursor: pointer; /* 링크 위로 마우스 커서를 가져다 놓으면 포인터 모양으로 변경 */
 }
+
+.ai-score{
+    position: relative;
+    background: #888 linear-gradient(to right, transparent 50%, var(--clr) 0);
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    color: #222;
+}
+
+.ai-score h3{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: 2.5rem;
+}
+.ai-score::before{
+    content: '';
+    display: block;
+    height: 100%;
+    margin-left: 50%;
+    transform-origin: left;
+    border-radius: 0 100% 100% 0/50%;
+}
+
+.ai-score::after{
+    content: '';
+    position:  absolute;
+    inset: 10px;
+    border-radius: 50%;
+    background: #fff;
+    transform-origin: right;
+}
+
+.ai-score.over::before{
+    background: var(--clr);
+    transform:  rotate(calc(
+        (var(--i) - 50) *0.01turn
+    ));
+}
+.ai-score.under::before{
+    background: #888;
+    transform:  rotate(calc(
+        (var(--i) - 0) *0.01turn
+    ));
+}
+.ai-score.over-80{
+    --clr:#4CAF50;
+}
+.ai-score.over-60{
+    --clr:#FFEB3B;
+}
+.ai-score.over-40{
+    --clr:#FF9800;
+}
+.ai-score.over-20{
+    --clr:#FF5722;
+}
+.ai-score.under-20{
+    --clr:#F44336;
+}
+
+.ai-answer{
+    height: 150px;
+}

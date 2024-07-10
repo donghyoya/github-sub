@@ -40,25 +40,8 @@ document.getElementById("repo-form").addEventListener("submit", (event) =>{
              * ai request하고
              * 크롤링 완료처리를 함
              */
-            requestAi(data['username'], data['reponame']);// ai request
+            getAiResult(data['repoid']);
             getSourceCode(data['repoid']); // 크롤링 데이터 받아오기
-            pollingStatus(data['repoid']); // 상태 갱신
-        }else if(state === 200){
-            /**
-             * AI 작업 중
-             * = 작업 순서상 크롤링은 완료되었음 => 크롤링 코드 받아오기
-             * = AI request도 이미 완료되었음 => AI request는 안해도 되고 status만 갱신
-             */
-            getSourceCode(data['repoid']); // 크롤링 데이터 받아오기
-            pollingStatus(data['repoid']); // 상태 갱신
-        }else if(state === 210){
-            /**
-             * AI작업까지 완료
-             * = 크롤링 데이터 가져오기
-             * = AI 데이터 가져오기
-             */
-            getSourceCode(data['repoid']); // 크롤링 데이터 받아오기
-            getAiResult(data['username'], data['reponame']); // ai 데이터 가져오기
         }else if(state === -1){
             // 잘못된 api 요청
             document.getElementById("form-info").innerText = "실패했습니다. 링크를 확인해주십시오";
@@ -107,13 +90,7 @@ const pollingStatus = (rid) => {
                  * 크롤링 완료처리를 함
                  */
                 getSourceCode(rid); // 크롤링 데이터 받아오기
-                requestAi(username, reponame)// ai request하기
-            } else if(state === 210){
-                /**
-                 * ai 완료
-                 * 프로그램의 로직상 크롤링 데이터는 이미 받아져있음
-                 */
-                getAiResult(username, reponame);
+                getAiResult(rid);
                 clearPolling();
             }
         });
@@ -146,50 +123,16 @@ const getSourceCode = (rid) => {
     })
 }
 
-const getRepoHeader = (username, reponame) => {
-    const repository = `${username}/${reponame}`;
-    fetch(`/ui/frag/${repository}/repository`,{
-        method: 'GET'
-    }).then(resp=>resp.text())
-    .then(data=>{
-        resultRepo.innerHTML = data;
-    })
-}
-
-const getAiResult = (username, reponame) => {
-    const repository = `${username}/${reponame}`;
-    fetch(`/ui/frag/${repository}/ai`,{
-        method: 'GET'
+const getAiResult = (rid) => {
+    const repository = `${rid}`;
+    fetch(`/ui/${repository}/ai`,{
+        method: 'POST'
     }).then(resp=>resp.text())
     .then(data=>{
         resultAi.innerHTML = data;
         setAiProcessBox(false);
     })
 }
-
-/* request ai */
-
-const requestAi = (username, reponame) => {
-    const endpoint = `/ui/mock/${username}/${reponame}/ai`;
-    const formData = {
-        username : username,
-        reponame : reponame
-    };
-    const jsonData = JSON.stringify(formData);
-
-    fetch('/ui/mock/ai', {
-        method: 'POST',
-        headers:{
-            'Content-Type': 'application/json'
-        },
-        body:jsonData
-    }).then(resp => resp.json())
-        .then(data=>{
-            console.log('request ai', data);
-            setAiProcessBox(true);
-        });
-}
-
 /* utils */
 const checkWorkState = (status) => {
     console.log("checkWorkState", status);

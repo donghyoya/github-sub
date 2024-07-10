@@ -1,19 +1,33 @@
 <div class="p-5 text-center bg-white rounded shadow-sm">
     <h1 class="fw-bold border-bottom pb-2 mb-2">Chat GPT의 코드 리뷰 결과</h1>
     <div class="row">
-        <div class="col-3 fw-bold border-end">
-            AI의 점수
+        <div class="col-3">
+            <div
+                    class="ai-score fst-italic
+                        {%    if repo.ai_score > 50 %} over
+                        {% elif repo.ai_score <= 50 %} under
+                        {% endif %}
+
+                        {%   if repo.ai_score > 80 %} over-80
+                        {% elif repo.ai_score > 60 %} over-60
+                        {% elif repo.ai_score > 40 %} over-40
+                        {% elif repo.ai_score > 20 %} over-20
+                        {% else %} under-20
+                        {% endif %}
+
+                    "
+                    style="
+                        --i: {{ repo.ai_score }};
+                    ">
+                <h3>
+                    {{ repo.ai_score }}
+                </h3>
+            </div>
         </div>
         <div class="col-9">
-            {{repo.ai_score}}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-3 fw-bold border-end">
-            AI의 코멘트
-        </div>
-        <div class="col-9">
-            {{repo.ai_answer}}
+            <p class="ai-answer">
+                {{ repo.ai_answer }}
+            </p>
         </div>
     </div>
 </div>

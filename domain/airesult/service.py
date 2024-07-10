@@ -91,7 +91,6 @@ def _(ai_result: AiResult, db: Session):
 def get_ai_result(db: Session, aid: int):
     return db.query(AiResult).filter(AiResult.aid == aid).first()
 
-
 @singledispatch
 def update_ai_result(updates, db: Session):
     raise NotImplementedError("Unsupported type")

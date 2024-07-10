@@ -5,9 +5,11 @@ from default.config.aiconfig import AiConfig
 from domain.airesult.router import get_db, get_ai
 from domain.frontend.schema import RepositoryForm, RequestAiForm
 from domain.frontend.service import search_repository_by_rid, get_working_status, create_repository_ai_result, \
-    get_ai_result_by_rid
+    get_ai_result_by_rid, exists_ai_result_by_rid
 from default.utils.urlutils import url_checker
 from sqlalchemy.orm import Session
+
+from domain.frontend.view_model import VMRepository
 
 router = APIRouter(
     tags=["frontend"]
@@ -48,6 +50,9 @@ def get_repository_for_user(
         db: Session = Depends(get_db),
     ):
     repository = search_repository_by_rid(rid, db)
+    if exists_ai_result_by_rid(db=db, rid=rid):
+        ai_result = get_ai_result_by_rid(rid, db)
+        repository.set_ai_score(ai_result.score).set_ai_answer(ai_result.answer)
     context = {
         "request": request,
         "repo": repository
@@ -61,8 +66,19 @@ def post_repository_ai(
         db: Session = Depends(get_db),
         ai_config: AiConfig = Depends(get_ai)
     ):
-    ai_result = create_repository_ai_result(rid=rid, ai_config=ai_config, db=db)
-    return ai_result
+    if not exists_ai_result_by_rid(db=db, rid=rid):
+        # API 보호를 위해서 확인 후 처리
+        ai_result = create_repository_ai_result(rid=rid, ai_config=ai_config, db=db)
+    else:
+        ai_result = get_ai_result_by_rid(rid, db)
+
+    repository = VMRepository().set_ai_score(ai_result.score).set_ai_answer(ai_result.answer)
+    context = {
+        "request": request,
+        "repo": repository
+    }
+    return templates.TemplateResponse("fragment/ai_result.html", context)
+
 
 @router.get("/{rid}/ai")
 def get_repository_ai_answer(
@@ -70,7 +86,15 @@ def get_repository_ai_answer(
         request: Request,
         db: Session = Depends(get_db)
     ):
-    return get_ai_result_by_rid(rid, db)
+    if not exists_ai_result_by_rid(db=db, rid=rid):
+        raise HTTPException(404)
+    ai_result = get_ai_result_by_rid(rid, db)
+    repository = VMRepository().set_ai_score(ai_result.score).set_ai_answer(ai_result.answer)
+    context = {
+        "request": request,
+        "repo": repository
+    }
+    return templates.TemplateResponse("fragment/ai_result.html", context)
 
 # start of /frag
 @router.get("/frag/{rid}/source")

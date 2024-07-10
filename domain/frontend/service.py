@@ -1,5 +1,6 @@
 import time
 from fastapi import BackgroundTasks, HTTPException
+from sqlalchemy import exists
 
 from default.config.aiconfig import AiConfig
 from default.utils.redisutils import load_status, save_status, WorkStatus
@@ -71,3 +72,8 @@ def get_ai_result_by_rid(rid:int, db:Session):
         get ai result by repository id
     """
     return db.query(AiResult).filter(AiResult.rid == rid).first()
+
+
+def exists_ai_result_by_rid(db: Session, rid: int):
+    return db.query(exists().where(AiResult.rid == rid)).scalar()
+
