@@ -4,7 +4,8 @@ from fastapi.templating import Jinja2Templates
 from default.config.aiconfig import AiConfig
 from domain.airesult.router import get_db, get_ai
 from domain.frontend.schema import RepositoryForm, RequestAiForm
-from domain.frontend.service import search_repository_by_rid, get_working_status, create_repository_ai_result
+from domain.frontend.service import search_repository_by_rid, get_working_status, create_repository_ai_result, \
+    get_ai_result_by_rid
 from default.utils.urlutils import url_checker
 from sqlalchemy.orm import Session
 
@@ -62,6 +63,14 @@ def post_repository_ai(
     ):
     ai_result = create_repository_ai_result(rid=rid, ai_config=ai_config, db=db)
     return ai_result
+
+@router.get("/{rid}/ai")
+def get_repository_ai_answer(
+        rid:int,
+        request: Request,
+        db: Session = Depends(get_db)
+    ):
+    return get_ai_result_by_rid(rid, db)
 
 # start of /frag
 @router.get("/frag/{rid}/source")

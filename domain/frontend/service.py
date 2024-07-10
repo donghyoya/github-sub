@@ -22,7 +22,7 @@ def search_repository_by_rid(rid, db: Session) -> VMRepository:
 def get_working_status(rid: int):
     return load_status(rid)
 
-# AI - SERVICE
+# CREATE AI ANSWER
 def create_prompt(rid):
     """
         git repositoy 코드를 분석하는 AI 프롬프트 생성기
@@ -64,3 +64,10 @@ def insertOrUpdateAi(repository, ai_setting: AiSettingSchema, db: Session):
     )
     ai_resultdb = create_ai_result(ai_result_insert_db, db)
     return AiResultBaseSchema.model_validate(ai_resultdb)
+
+# READ AI RESULT
+def get_ai_result_by_rid(rid:int, db:Session):
+    """
+        get ai result by repository id
+    """
+    return db.query(AiResult).filter(AiResult.rid == rid).first()
